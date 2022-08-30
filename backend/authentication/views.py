@@ -1,7 +1,9 @@
-from django.contrib.auth.models import User, Group
 from rest_framework import views, viewsets
 from rest_framework import permissions
 from authentication.serializers import UserSerializer
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 from . import serializers
 
