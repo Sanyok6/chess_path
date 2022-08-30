@@ -21,8 +21,8 @@
 
         <NavUl {hidden}>
             <DarkMode {btnClass} />
-            <NavLi class="mt-2" href="#">Login</NavLi>
-            <NavLi class="mt-2" href="#">Signup</NavLi>
+            <NavLi class="mt-2" href="/auth/login">Login</NavLi>
+            <NavLi class="mt-2" href="/auth/signup">Signup</NavLi>
         </NavUl>
     </Navbar>
 

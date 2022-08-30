@@ -11,9 +11,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
         fields = ("username", "email", "password")
     
     def create(self, data):
-        print(data.id)
-        d = UserData(id=data.id)
-        d.save()
+        User.objects.create_user(username=data["username"], email=data["email"], password=data['password'])
+        # print(data.id)
+        # d = UserData(id=data.id)
+        # d.save()
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
