@@ -22,5 +22,5 @@ export const fetchApi = async (
       defaultOptions.headers = { 'X-CSRFToken': csrfToken, ...defaultOptions.headers };
     }
     defaultOptions.credentials = 'include';
-    return await fetch(`${window.location.origin}/${endpoint}`, defaultOptions);
+    return await fetch(`${window.location.origin}/api/${endpoint}`, defaultOptions);
   };

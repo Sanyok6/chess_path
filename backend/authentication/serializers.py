@@ -11,9 +11,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         fields = ("username", "email", "password")
     
     def create(self, data):
-        User.objects.create_user(username=data["username"], email=data["email"], password=data['password'])
+        return User.objects.create_user(username=data["username"], email=data["email"], password=data['password'])
         # print(data.id)
-        # d = UserData(id=data.id)
+        # d = UserData(id=data)
         # d.save()
 
 
@@ -25,11 +25,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'username', 'email', 'is_staff', 'data')
 
     def get_data(self, user):
-        queryset = UserData.objects.get(pk=user)
-        if not queryset: 
+        if not UserData.objects.filter(id=user): 
             d = UserData(id=user)
             d.save()
             queryset = UserData.objects.get(pk=user)
+        else: 
+            queryset = UserData.objects.get(pk=user)
+        
 
         print(queryset.last_completion)
 
@@ -37,6 +39,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "record": queryset.record,
             "last_completion": queryset.last_completion
         }
+
+class LoginSerializer(serializers.Serializer):
+
+    email = serializers.CharField()
+    password = serializers.CharField()
 
 
 # class UserSerializer(serializers.HyperlinkedModelSerializer):

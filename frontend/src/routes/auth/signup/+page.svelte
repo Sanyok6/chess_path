@@ -1,3 +1,4 @@
+<!-- signup -->
 <script lang="ts">
 
     import { goto } from "$app/navigation";
@@ -9,13 +10,14 @@
     let email: string;
     let password: string;
 
-    const handleLogin = async () => {
-        const response = await fetchApi("api/auth/signup/", {
+    const handleSignup = async () => {
+        console.log(username, email, password)
+        const response = await fetchApi("auth/signup/", {
             method: "POST",
             body: JSON.stringify({
-                username,
-                email,
-                password
+                "username": username,
+                "email": email,
+                "password": password
             })
         });
 
@@ -38,9 +40,9 @@
     <div class="w-full max-w-md space-y-8">
       <div>
         <img class="mx-auto h-12 w-auto" src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=600" alt="Workflow">
-        <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Sign in to your account</h2>
+        <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Create an account</h2>
       </div>
-      <form class="mt-8 space-y-6" on:submit|preventDefault={handleLogin}>
+      <form class="mt-8 space-y-6" on:submit|preventDefault={handleSignup}>
         <input type="hidden" name="remember" value="true">
         <div class="-space-y-px rounded-md shadow-sm">
           <div>
@@ -58,8 +60,8 @@
         </div>
   
         <div>
-          <button on:submit|preventDefault={handleLogin} type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            Sign in
+          <button on:submit|preventDefault={handleSignup} type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            Sign up
           </button>
         </div>
       </form>
