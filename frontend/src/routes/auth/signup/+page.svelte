@@ -1,8 +1,9 @@
 <!-- signup -->
 <script lang="ts">
 
+    import { Alert } from "flowbite-svelte";
     import { goto } from "$app/navigation";
-    import { fetchApi } from "$lib/api";
+    import { fetchApi, fetchUserData, formatApiErrors } from "$lib/api";
 
     let messages: string[] = [];
 
@@ -11,7 +12,6 @@
     let password: string;
 
     const handleSignup = async () => {
-        console.log(username, email, password)
         const response = await fetchApi("auth/signup/", {
             method: "POST",
             body: JSON.stringify({
@@ -21,16 +21,15 @@
             })
         });
 
-        console.log(response)
 
-        // if (response.ok) {
-        //     fetchUserData(null);
-        //     goto("/");
-        // } else {
-        //     const errors = formatApiErrors(await response.json()); // this will be a list of strings
-        //     messages=errors;
-        //     // TODO: Show API errors
-        // }
+        if (response.ok) {
+            fetchUserData(null);
+            goto("/");
+        } else {
+            const errors = formatApiErrors(await response.json()); // this will be a list of strings
+            messages=errors;
+            // TODO: Show API errors
+        }
     }
 
 </script>
@@ -43,6 +42,9 @@
         <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Create an account</h2>
       </div>
       <form class="mt-8 space-y-6" on:submit|preventDefault={handleSignup}>
+        {#if messages.length}
+          <Alert color="yellow">{messages.toString()}</Alert>
+        {/if}
         <input type="hidden" name="remember" value="true">
         <div class="-space-y-px rounded-md shadow-sm">
           <div>

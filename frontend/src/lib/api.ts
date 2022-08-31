@@ -1,4 +1,4 @@
-
+import { userStore, type User } from "./store";
 
 export const getCookie = (name: string) =>
   document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || null;
@@ -24,3 +24,27 @@ export const fetchApi = async (
     defaultOptions.credentials = 'include';
     return await fetch(`${window.location.origin}/api/${endpoint}`, defaultOptions);
   };
+
+
+export const fetchUserData = (userData: User | null, csrfTk?: string) => {
+  if (!userData && (getCookie('isLoggedIn') === 'yes')) {
+    fetchApi("auth/users/me/", {}, csrfTk).then((response) => {
+      if (response.ok) {
+            response.json().then(j => userStore.set(j["user"]));
+      } else {
+        console.log("error getting user data")
+      }
+    })
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const formatApiErrors = (data: any): Array<string> => {
+  const messages: Array<string> = [];
+  for (const [key, value] of Object.entries(data)) {
+    messages.push(
+      `${key !== 'detail' ? `${key}: ` : ''}${Array.isArray(value) ? value.join(', ') : value}`
+    );
+  }
+  return messages;
+};
