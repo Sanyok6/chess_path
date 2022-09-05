@@ -1,6 +1,5 @@
 <!-- login -->
 <script lang="ts">
-    import { Alert } from "flowbite-svelte";
     import { goto } from "$app/navigation";
     import { fetchApi, fetchUserData, formatApiErrors } from "$lib/api";
 
@@ -40,7 +39,7 @@
       </div>
       <form class="mt-8 space-y-6" on:submit|preventDefault={handleLogin}>
         {#if messages.length}
-          <Alert color="yellow">{messages.toString()}</Alert>
+          <!-- <Alert color="yellow">{messages.toString()}</Alert> -->
         {/if}
         <input type="hidden" name="remember" value="true">
         <div class="-space-y-px rounded-md shadow-sm">

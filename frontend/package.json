@@ -10,13 +10,11 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
-		"@floating-ui/dom": "^1.0.1",
-		"@popperjs/core": "^2.11.6",
 		"@sveltejs/adapter-auto": "next",
 		"@sveltejs/kit": "next",
 		"autoprefixer": "^10.4.8",
 		"classnames": "^2.3.1",
-		"flowbite-svelte": "^0.26.0",
+		"daisyui": "^2.24.0",
 		"postcss": "^8.4.16",
 		"svelte": "^3.44.0",
 		"svelte-check": "^2.7.1",
@@ -27,5 +25,9 @@
 		"typescript": "^4.7.4",
 		"vite": "^3.0.4"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"svelte-confetti": "^1.2.0",
+		"theme-change": "^2.2.0"
+	}
 }
