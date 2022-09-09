@@ -24,12 +24,12 @@
                 progressVal = 0
                 confetti=true
                 stats.completed++ 
-                stats.claimed = true
                 return
             }
             setTimeout(update, 20)
         }
         if (!stats.claimed) {
+            stats.claimed = true
             update()
         }
     }
@@ -48,7 +48,7 @@
 </script>
 
 <div class="overflow-x-hidden w-[100%]">
-    <h1 class="text-center text-5xl mb-32">{userData?.username}'s Path</h1>
+    <h1 class="text-center text-5xl mb-32 p-1">{userData?.username}'s Path</h1>
     <div class="flex flex-wrap w-[100%] justify-evenly">
         <div class="text-center text-blue-600 dark:text-blue-300 p-5">
             <p class="text-3xl py-2">Total Time:</p>
