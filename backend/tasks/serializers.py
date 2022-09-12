@@ -6,7 +6,7 @@ Task = TaskModel()
 class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Task
-        fields = ("creator", "name", "duration")
+        fields = '__all__'
     def validate(self, data):
         return data
 
