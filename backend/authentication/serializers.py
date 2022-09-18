@@ -3,6 +3,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import UserData
 
+from tasks.models import TaskModel
+
 User = get_user_model()
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -32,12 +34,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         else: 
             queryset = UserData.objects.get(pk=user)
         
-
-        print(queryset.last_completion)
+        tasks = TaskModel.objects.filter(creator=user).all()
+        print(list(tasks))
 
         return {
             "record": queryset.record,
-            "last_completion": queryset.last_completion
+            "last_completion": queryset.last_completion,
+            "tasks": tasks
         }
 
 class LoginSerializer(serializers.Serializer):

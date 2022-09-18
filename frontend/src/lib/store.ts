@@ -13,6 +13,17 @@ export interface User {
 
 export const userStore = writable<User | null>(null);
 
+
+export interface Task {
+	name: string;
+	duration: number;
+	lastCompleted: string; 
+	creator: number;
+}
+
+export const tasksStore = writable<Array<Task> | null>(null);
+
+
 // export interface Appearance {
 // 	board_style: string;
 // 	piece_set: string;

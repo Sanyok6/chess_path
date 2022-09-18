@@ -10,7 +10,7 @@
     <slot />  
 
   </div> 
-  <div class="drawer-side">
+  <div class="drawer-side h-100">
     <label for="my-drawer-2" class="drawer-overlay"></label> 
     <ul class="menu p-4 overflow-y-auto w-72 bg-base-100 text-base-content">
       <!-- Sidebar content here -->

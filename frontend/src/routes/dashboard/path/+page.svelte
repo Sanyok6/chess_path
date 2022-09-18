@@ -7,7 +7,6 @@
     import { Confetti } from "svelte-confetti"
 
     let userData: User | null = null;
-    let isLoggedIn = false;  // Assume that the user is not logged in at first
 
     userStore.subscribe(d => userData = d)
 

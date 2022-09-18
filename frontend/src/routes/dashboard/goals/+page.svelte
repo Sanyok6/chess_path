@@ -1,10 +1,41 @@
 <script lang="ts">
+    import { type User, userStore, tasksStore, type Task } from "$lib/store";
+    import { fetchApi, fetchTaskData, formatApiErrors } from "$lib/api";
 
+    let userData: User | null = null;
+
+    userStore.subscribe(d => userData = d)
+
+    let messages: string[] = [];
+    let newTaskName: string;
+    let newTaskDur: number;
+
+    const createNewTask = async () => {
+        const response = await fetchApi("tasks/", {
+            method: "POST",
+            body: JSON.stringify({
+                "name": newTaskName,
+                "duration": newTaskDur
+            })
+        });
+
+
+        if (response.ok) {
+            console.log("OK")
+            createModalOpen = false
+            fetchTaskData()
+        } else {
+            const errors = formatApiErrors(await response.json());
+            messages=errors;
+        }
+    }
+
+    let createModalOpen = false
     let taskModalOpen = false
 
-    let tasks = [{name: "Puzzles", duration: 10, completed: true}, {name: "Games", duration: 15, completed: false}, {name: "Chess Book", duration: 10, completed: true}, {name: "Lichess Puzzles", duration: 15, completed: false}, ]
+    let tasks: Array<Task> = [{name: "", duration:0, lastCompleted:"", creator:0}];
     
-    let currentTask = {task: tasks[0], secondsRemaining: 0, formattedTime: "", percentage: 0, inProgress: false, paused: false}
+    let currentTask: {task: Task, secondsRemaining: number, formattedTime: string, percentage: number, inProgress: boolean, paused: boolean} = {inProgress:false}
 
 
     const setCurrentTask = (index: number) => {
@@ -26,13 +57,17 @@
 
         setTimeout(startTask, 1000)
     }
+
+
+    // tasksStore.subscribe(t => tasks=t;)
+
 </script>
 
 
 <div class="flex justify-center flex-wrap w-[100%]">
 
     {#each tasks as t, i}
-        <div class="w-[95%] lg:w-[60%] m-2 {t.completed ? 'hidden' : ''}" on:click={() => {setCurrentTask(i);}}>
+        <div class="w-[95%] lg:w-[60%] m-2 {t.lastCompleted == new Date().toISOString().split('T')[0] ? 'hidden' : ''}" on:click={() => {setCurrentTask(i);}}>
             <button for="task-modal" class="btn btn-outline rounded-3xl w-full h-24 normal-case text-3xl font-light">
                 <p class="mx-5">{t.name}</p>
             </button>
@@ -100,26 +135,44 @@
 </div>
 
 
-<input type="checkbox" id="create-modal" class="modal-toggle" />
+<input type="checkbox" id="create-modal" class="modal-toggle"  bind:checked={createModalOpen} />
 <div class="modal">
   <div class="modal-box">
     <label for="create-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
     <h3 class="font-bold text-lg mb-2 -mt-2">Create new task</h3>
 
-    <form class="my-5">
+    <form class="my-5" on:submit|preventDefault={createNewTask}>
+        {#if messages.length}
+            <div class="alert alert-warning shadow-lg">
+                <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <span>{messages}</span>
+                </div>
+            </div>
+        {/if}
+
         <div class="my-3">
             <p>Title</p>
-            <input type="text" placeholder="Task Title" class="input input-bordered input-primary w-full max-w-xs" />
+            <input bind:value={newTaskName} type="text" placeholder="Task Title" class="input input-bordered input-primary w-full max-w-xs" />
         </div>
 
         <div class="my-3">
             <p>Duration (minutes)</p>
-            <input type="number" placeholder="Task Duration (minutes)" class="input input-bordered input-primary w-full max-w-xs" />
+            <input bind:value={newTaskDur} type="number" placeholder="Task Duration (minutes)" min=0 class="input input-bordered input-primary w-full max-w-xs" />
         </div>
+
+        <div class="modal-action">
+            <button class="btn" type="submit">
+              create
+            </button>
+          </div>
+
     </form>
 
-    <div class="modal-action">
-      <label for="create-modal" class="btn">create</label>
-    </div>
+    <!-- <div class="modal-action">
+      <button on:click={createNewTask} class="btn">
+        create
+      </button>
+    </div> -->
   </div>
 </div>

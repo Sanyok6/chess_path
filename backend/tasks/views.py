@@ -30,7 +30,7 @@ class TasksViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
+        instance = serializer.save(creator=request.user)
         headers = self.get_success_headers(serializer.data)
         return Response(TaskCreateSerializer(instance, context=self.get_serializer_context()).data,
                         status=status.HTTP_201_CREATED, headers=headers)
