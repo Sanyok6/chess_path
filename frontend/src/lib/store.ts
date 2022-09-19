@@ -1,8 +1,16 @@
 import { writable } from 'svelte/store';
 
+export interface Task {
+	name: string;
+	duration: number;
+	lastCompleted: string; 
+	creator: number;
+}
+
 export interface UserData {
 	record: number;
-    last_completion: Date; 
+    last_completion: Date;
+	tasks: Array<Task>;
 }
 
 export interface User {
@@ -13,20 +21,3 @@ export interface User {
 
 export const userStore = writable<User | null>(null);
 
-
-export interface Task {
-	name: string;
-	duration: number;
-	lastCompleted: string; 
-	creator: number;
-}
-
-export const tasksStore = writable<Array<Task> | null>(null);
-
-
-// export interface Appearance {
-// 	board_style: string;
-// 	piece_set: string;
-// }
-
-// export const appearanceStore = writable<Appearance | null>(null);

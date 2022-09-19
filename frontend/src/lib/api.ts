@@ -1,4 +1,4 @@
-import { userStore, type User, type Task, tasksStore } from "./store";
+import { userStore, type User, } from "./store";
 
 export const getCookie = (name: string) =>
   document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || null;
@@ -48,16 +48,3 @@ export const formatApiErrors = (data: any): Array<string> => {
   }
   return messages;
 };
-
-
-export const fetchTaskData = (taskData: Task | null, csrfTk?: string) => {
-  if (!taskData && (getCookie('isLoggedIn') === 'yes')) {
-    fetchApi("/tasks/", {}, csrfTk).then((response) => {
-      if (response.ok) {
-            response.json().then(j => tasksStore.set(j["results"]));
-      } else {
-        console.log("error getting user data")
-      }
-    })
-  }
-}
