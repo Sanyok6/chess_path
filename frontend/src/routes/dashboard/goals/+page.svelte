@@ -4,38 +4,18 @@
 
     let userData: User | null = null;
 
-
     let messages: string[] = [];
     let newTaskName: string;
     let newTaskDur: number;
 
-    const createNewTask = async () => {
-        const response = await fetchApi("tasks/", {
-            method: "POST",
-            body: JSON.stringify({
-                "name": newTaskName,
-                "duration": newTaskDur
-            })
-        });
-
-
-        if (response.ok) {
-            console.log("OK")
-            createModalOpen = false
-            fetchUserData()
-        } else {
-            const errors = formatApiErrors(await response.json());
-            messages=errors;
-        }
-    }
-
     let createModalOpen = false
     let taskModalOpen = false
 
-    let tasks: Array<Task> = [{name: "", duration:0, lastCompleted:"", creator:0}];
+    let tasks: Array<Task> = [{id:0, name: "", duration:0, lastCompleted:"", creator:0}];
     
     let currentTask: {task: Task, secondsRemaining: number, formattedTime: string, percentage: number, inProgress: boolean, paused: boolean} = {task: tasks[0], secondsRemaining:0, formattedTime:"", percentage:0,inProgress:false,paused:false}
 
+    let editing = false
 
     const setCurrentTask = (index: number) => {
         taskModalOpen = true
@@ -61,6 +41,65 @@
         userData = d
         if (d) {tasks = d.data.tasks}
     })
+
+
+    const createNewTask = async () => {
+        const response = await fetchApi("tasks/", {
+            method: "POST",
+            body: JSON.stringify({
+                "name": newTaskName,
+                "duration": newTaskDur
+            })
+        });
+
+
+        if (response.ok) {
+            createModalOpen = false
+            newTaskName=""
+            newTaskDur=0
+            fetchUserData()
+        } else {
+            const errors = formatApiErrors(await response.json());
+            messages=errors;
+        }
+    }
+
+    const editTask = async () => {
+        const response = await fetchApi("tasks/"+currentTask.task.id+"/", {
+            method: "PUT",
+            body: JSON.stringify({
+                "name": newTaskName,
+                "duration": newTaskDur
+            })
+        });
+
+        if (response.ok) {
+            createModalOpen = false
+            editing = false
+            newTaskName=""
+            newTaskDur=0
+            fetchUserData()
+        } else {
+            const errors = formatApiErrors(await response.json());
+            messages=errors;
+        }
+    }
+
+
+    const deleteCurrentTask = async () => {
+        const response = await fetchApi("tasks/"+currentTask?.task.id, {
+            method: "DELETE",
+        });
+        if (response.ok) {
+            console.log("OK")
+            taskModalOpen = false
+            fetchUserData()
+        } else {
+            console.log("error deleting task")
+        }
+    }
+
+
 </script>
 
 {#if userData != null}
@@ -97,8 +136,8 @@
             <div class="radial-progress m-5" style="--value:{currentTask.percentage};--size:8rem;">{currentTask.formattedTime}</div>
         {:else}
             <div class="text-left">
-                <p>Task Name: {currentTask.task.name}</p>
-                <p>Duration: {currentTask.task.duration} mins</p>
+                <p>Task Name: <span class="font-semibold">{currentTask.task.name}</span></p>
+                <p>Duration: <span class="font-semibold">{currentTask.task.duration} mins</span></p>
             </div>
         {/if}
     </div>
@@ -117,12 +156,19 @@
                 <button on:click={() => {currentTask.inProgress = false; taskModalOpen=false}} class="btn btn-outline btn-success">finish</button>
             {/if}
         {:else}
-            <button class="btn btn-outline btn-error">
+            <label for="task-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+            <button class="btn btn-outline btn-error" on:click={deleteCurrentTask}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                     <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
                 </svg>
             </button>
-            <button class="btn btn-outline btn-warning">
+            <button class="btn btn-outline btn-warning" on:click={()=>{
+                editing=true;
+                taskModalOpen=false;
+                createModalOpen = true
+                newTaskName = currentTask.task.name
+                newTaskDur = currentTask.task.duration
+                }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                 </svg>
@@ -138,10 +184,10 @@
 <input type="checkbox" id="create-modal" class="modal-toggle"  bind:checked={createModalOpen} />
 <div class="modal">
   <div class="modal-box">
-    <label for="create-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <label for="create-modal" class="btn btn-sm btn-circle absolute right-2 top-2" on:click={() => {editing=false}}>✕</label>
     <h3 class="font-bold text-lg mb-2 -mt-2">Create new task</h3>
 
-    <form class="my-5" on:submit|preventDefault={createNewTask}>
+    <form class="my-5" on:submit|preventDefault={editing ? editTask : createNewTask}>
         {#if messages.length}
             <div class="alert alert-warning shadow-lg">
                 <div>

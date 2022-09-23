@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 
 export interface Task {
+	id: number;
 	name: string;
 	duration: number;
 	lastCompleted: string; 
