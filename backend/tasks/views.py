@@ -1,3 +1,4 @@
+from datetime import date
 from django.db.models import Q
 from rest_framework import pagination, status, permissions
 from rest_framework.response import Response
@@ -46,6 +47,17 @@ class TasksViewSet(ModelViewSet):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
+
+        return Response(TaskCreateSerializer(updated_instance,
+                                             context=self.get_serializer_context()).data)
+
+    def partial_update(self, request, *args, **kwargs):
+        print(date.today())
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data={"lastCompletion": date.today()}, partial=True)
+        serializer.is_valid(raise_exception=True)
+        updated_instance = serializer.save()
+
 
         return Response(TaskCreateSerializer(updated_instance,
                                              context=self.get_serializer_context()).data)

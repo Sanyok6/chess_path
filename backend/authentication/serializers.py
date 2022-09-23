@@ -1,4 +1,5 @@
 # from django.contrib.auth.models import User
+from datetime import date
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import UserData
@@ -35,7 +36,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         else: 
             queryset = UserData.objects.get(pk=user)
         
-        tasks = TaskModel.objects.filter(creator=user)
+        tasks = TaskModel.objects.filter(creator=user).exclude(lastCompletion=date.today())
 
         return {
             "record": queryset.record,

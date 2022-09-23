@@ -24,10 +24,10 @@
 
     const startTask = () => {
         if (!currentTask.paused) {
+            currentTask.percentage = 100 - (currentTask.secondsRemaining / currentTask.task.duration * 100)
+
             currentTask.formattedTime = new Date(currentTask.secondsRemaining * 1000).toISOString().substring(14, 19)
             currentTask.secondsRemaining --
-
-            currentTask.percentage = 100 - (currentTask.secondsRemaining / currentTask.task.duration * 100)
 
             if (currentTask.secondsRemaining < 0 || currentTask.inProgress == false) {
                 return
@@ -99,6 +99,20 @@
         }
     }
 
+    const finishTask = async () => {
+        const response = await fetchApi("tasks/"+currentTask.task.id+"/", {
+            method: "PATCH",
+        });
+
+        if (response.ok) {
+            currentTask.inProgress = false;
+            taskModalOpen=false
+            fetchUserData()
+        } else {
+           alert("error updating task completion, check your internet connection and try again.") 
+        }
+    }
+
 
 </script>
 
@@ -145,7 +159,7 @@
 
     <div class="modal-action flex justify-center">
         {#if currentTask.inProgress}
-            {#if currentTask.secondsRemaining > 0}
+            {#if currentTask.secondsRemaining >= 0}
                 <button class="btn btn-outline" on:click={() => {currentTask.paused = !currentTask.paused}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-pause-fill" viewBox="0 0 16 16">
                         <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/>
@@ -153,7 +167,7 @@
                 </button>
                 <button on:click={() => {currentTask.inProgress = false; taskModalOpen=false}} for="task-modal" class="btn btn-outline btn-error">cancel</button>
             {:else}
-                <button on:click={() => {currentTask.inProgress = false; taskModalOpen=false}} class="btn btn-outline btn-success">finish</button>
+                <button on:click={finishTask} class="btn btn-outline btn-success">finish</button>
             {/if}
         {:else}
             <label for="task-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
