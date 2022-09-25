@@ -39,6 +39,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         tasks = TaskModel.objects.filter(creator=user).exclude(lastCompletion=date.today())
 
         return {
+            "current_streak": queryset.current_streak,
             "record": queryset.record,
             "last_completion": queryset.last_completion,
             "tasks": TaskSerializer(tasks, many=True).data

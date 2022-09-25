@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type User, userStore, type Task } from "$lib/store";
+    import { type User, userStore, taskClaimed, type Task } from "$lib/store";
     import { fetchApi, fetchUserData, formatApiErrors } from "$lib/api";
 
     let userData: User | null = null;
@@ -107,9 +107,10 @@
         if (response.ok) {
             currentTask.inProgress = false;
             taskModalOpen=false
+            if (userData?.data.tasks.length == 1) taskClaimed.set(false);
             fetchUserData()
         } else {
-           alert("error updating task completion, check your internet connection and try again.") 
+           alert("Error updating task completion status, check your internet connection and try again.") 
         }
     }
 
@@ -213,12 +214,12 @@
 
         <div class="my-3">
             <p>Title</p>
-            <input bind:value={newTaskName} type="text" placeholder="Task Title" class="input input-bordered input-primary w-full max-w-xs" />
+            <input bind:value={newTaskName} type="text" required placeholder="Task Title" class="input input-bordered input-primary w-full max-w-xs" />
         </div>
 
         <div class="my-3">
             <p>Duration (minutes)</p>
-            <input bind:value={newTaskDur} type="number" placeholder="Task Duration (minutes)" min=0 class="input input-bordered input-primary w-full max-w-xs" />
+            <input bind:value={newTaskDur} type="number" required placeholder="Task Duration (minutes)" min=0 class="input input-bordered input-primary w-full max-w-xs" />
         </div>
 
         <div class="modal-action">

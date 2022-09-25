@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import TaskModel
+from authentication.models import UserData
 from .serializers import (TaskSerializer,
                           TaskCreateSerializer)
 
@@ -29,6 +30,7 @@ class TasksViewSet(ModelViewSet):
             return TaskSerializer
 
     def create(self, request, *args, **kwargs):
+        request.data["duration"]*=60
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance = serializer.save(creator=request.user)
@@ -52,11 +54,15 @@ class TasksViewSet(ModelViewSet):
                                              context=self.get_serializer_context()).data)
 
     def partial_update(self, request, *args, **kwargs):
-        print(date.today())
         instance = self.get_object()
         serializer = self.get_serializer(instance, data={"lastCompletion": date.today()}, partial=True)
         serializer.is_valid(raise_exception=True)
         updated_instance = serializer.save()
+
+        queryset = UserData.objects.get(pk=request.user)
+
+        if TaskModel.objects.filter(creator=request.user).exclude(lastCompletion=date.today()).__len__() == 0 and queryset.last_completion != date.today():
+            UserData.objects.filter(pk=request.user).update(last_completion=date.today(), current_streak=queryset.current_streak+1)
 
 
         return Response(TaskCreateSerializer(updated_instance,

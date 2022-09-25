@@ -14,4 +14,5 @@ class UserData(models.Model):
     id = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE)
     last_completion = models.DateField(null=True, blank=True)
     record = models.PositiveIntegerField(default=0)
+    current_streak = models.PositiveIntegerField(default=0)
 
