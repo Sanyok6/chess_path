@@ -27,7 +27,9 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"chess.ts": "^0.16.2",
 		"svelte-confetti": "^1.2.0",
+		"svelte-use-chessground": "^2.0.0",
 		"theme-change": "^2.2.0"
 	}
 }

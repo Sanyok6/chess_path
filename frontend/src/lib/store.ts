@@ -13,12 +13,28 @@ export interface UserData {
 	record: number;
     last_completion: Date;
 	tasks: Array<Task>;
+	sets: Array<PuzzleSet>
 }
 
 export interface User {
 	id: number;
 	username: string;
 	data: UserData;
+}
+
+
+export interface PuzzleSet {
+	id: string;
+	creator: string;
+	name: string;
+	last_opened: Date;
+	puzzles: Array<Puzzles>;
+}
+
+export interface Puzzles {
+	id: number;
+	fen: string;
+	correct_variations: string;
 }
 
 export const userStore = writable<User | null>(null);

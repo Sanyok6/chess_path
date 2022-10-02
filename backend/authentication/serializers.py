@@ -7,6 +7,9 @@ from .models import UserData
 from tasks.serializers import TaskSerializer
 from tasks.models import TaskModel
 
+from puzzles.serializers import SetSerializer
+from puzzles.models import SetModel
+
 User = get_user_model()
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -37,12 +40,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             queryset = UserData.objects.get(pk=user)
         
         tasks = TaskModel.objects.filter(creator=user).exclude(lastCompletion=date.today())
+        sets = SetModel.objects.filter(creator=user)
 
         return {
             "current_streak": queryset.current_streak,
             "record": queryset.record,
             "last_completion": queryset.last_completion,
-            "tasks": TaskSerializer(tasks, many=True).data
+            "tasks": TaskSerializer(tasks, many=True).data,
+            "sets": SetSerializer(sets, many=True).data,
         }
 
 class LoginSerializer(serializers.Serializer):

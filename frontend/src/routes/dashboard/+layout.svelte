@@ -1,4 +1,4 @@
-<div class="drawer drawer-mobile">
+<div class="drawer drawer-mobile h-[93.5vh]">
   <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content flex flex-col items-center justify-center">
     <!-- Page content here -->
@@ -10,14 +10,16 @@
     <slot />  
 
   </div> 
-  <div class="drawer-side h-100">
+  <div class="drawer-side p-0">
     <label for="my-drawer-2" class="drawer-overlay"></label> 
     <ul class="menu p-4 overflow-y-auto w-72 bg-base-100 text-base-content">
       <!-- Sidebar content here -->
       <li><a href="/dashboard/path">Path</a></li>
       <li><a href="/dashboard/goals">Goals</a></li>
+      <li><a href="/dashboard/puzzles">Puzzles</a></li>
     </ul>
   
   </div>
+  
 </div>
 

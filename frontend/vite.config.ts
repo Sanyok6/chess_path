@@ -10,6 +10,12 @@ const config: UserConfig = {
 			}
 		}
 	},
+	ssr: {
+		noExternal: [
+			'svelte-use-chessground',
+			'chessground'
+		]
+	},
 };
 
 

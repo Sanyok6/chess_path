@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication.apps.AuthenticationConfig',
     'tasks.apps.TasksConfig',
+    'puzzles.apps.PuzzlesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
