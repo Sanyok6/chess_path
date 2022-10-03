@@ -4,6 +4,9 @@ from . import views
 
 
 router = DefaultRouter()
-router.register('', views.SetsViewSet, basename='sets')
+router.register('sets', views.SetsViewSet, basename='sets')
+router.register('puzzles', views.PuzzlesViewSet, basename='puzzles')
 
 urlpatterns = router.urls
+
+

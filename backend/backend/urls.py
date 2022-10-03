@@ -25,6 +25,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api/auth/', include('authentication.urls')),
     path('api/tasks/', include('tasks.urls')),
-    path('api/sets/', include('puzzles.urls')),
+    path('api/puzzlesets/', include('puzzles.urls')),
     path('admin/', admin.site.urls),
 ]

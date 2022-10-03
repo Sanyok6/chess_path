@@ -2,14 +2,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework import permissions
-from .serializers import SetCreateSerializer, SetSerializer
-from .models import SetModel
+from .serializers import SetCreateSerializer, SetSerializer, PuzzleSerializer 
+from .models import PuzzleModel, SetModel
 
 
 class SetsViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
     queryset = SetModel.objects.all()
 
     def get_serializer_class(self):
@@ -25,3 +22,8 @@ class SetsViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(SetSerializer(instance, context=self.get_serializer_context()).data,
                         status=status.HTTP_201_CREATED, headers=headers)
+
+
+class PuzzlesViewSet(viewsets.ModelViewSet):
+    queryset = PuzzleModel.objects.all()
+    serializer_class = PuzzleSerializer

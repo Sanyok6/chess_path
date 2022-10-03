@@ -11,7 +11,7 @@
     let newSetName = ""
     
     let create_new = async () => {
-        const response = await fetchApi("sets/", {
+        const response = await fetchApi("puzzlesets/sets/", {
             method: "POST",
             body: JSON.stringify({
                 "name": newSetName,

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
+    import { fetchApi, fetchUserData } from '$lib/api';
 	import { page } from '$app/stores';
     import { userStore, type PuzzleSet, type User } from '$lib/store';
 	import { Chessground, cgStylesHelper } from 'svelte-use-chessground';
@@ -19,42 +21,46 @@
 	let createModalOpen = false
 
 	let messages: string[] = []
-	let newFEN = ""
-	let newCV = "" // abbriviation for Correct Variation
+	let newFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+	let newPGN = "1. e4 e5 (1... c5 2. Nf3 (2. Nc3 d6) 2... d6 3. d4 (3. Bb5+ Bd7)) 2. Nf3 Nc6"
 
 	let board_size = 50
 	let board_style = "blue"
 
-	// let config = {
-	// 	movable:{
-	// 		free:false,
-	// 		dests:["d4"],
-	// 		events: {after: []}
-	// 	},
-	// 	premovable:{
-	// 		enabled:false,
-	// 	},
-	// 	fen:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-    //     lastMove: [],
-    //     orientation: "white",
-	// };
+	let config = {
+		movable:{
+			free:false,
+			dests: new Map().set("d2", ["d4"]).set("b2", ["b3"]),
+			events: {after: []}
+		},
+		premovable:{
+			enabled:false,
+		},
+		fen:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        lastMove: [],
+        orientation: "white",
+	};
 
-    let config = {}
-
+    // let config = {
+	// 	movable: {
+	// 		free: false,
+	// 		dests: ["d4"],
+	// 		// events: {after: [() => {alert("good job")}]}
+	// 	}
+	// }
     let cgApi;
-
     function initializer(api: any) {
 		cgApi = api;
 	}
 
 
     import { Chess } from 'chess.ts'
-    import { onMount } from 'svelte';
+
 
     const chess = new Chess()
 
 	let fen = ""
-	let moves: Array<any> = []
+	let moves: any[] = []
 
 	const variation = "1. b3 e5 (1... d5 2. Nf3 Nf6 (2... Bg4 3. e3) 3. Bb2) 2. Bb2"
 	// const variation = "1. e4 e5 (1... c5 2. Nf3 (2. Nc3 d6) 2... d6 3. d4 (3. Bb5+ Bd7)) 2. Nf3 Nc6"
@@ -63,7 +69,8 @@
 	fen = position
 
 	const loadPGN = (pgn: string) => {
-		let moveList: Array<any> = [{id:0, fen:fen, moves:[]}]
+		let c = new Chess()
+		let moveList: any[] = [{id:0, fen:fen, moves:[]}]
 		let hist = [fen]
 		let splitMoves = pgn.split(" ")
 		let ids = {ids: [0], max: 1}
@@ -73,12 +80,12 @@
 			if (m.includes("(")) {
 				moveList.push({
 					id: ids.max,
-					fen:chess.fen(),
+					fen:c.fen(),
 					moves:[]
 				})
-				hist.push(chess.fen())
+				hist.push(c.fen())
 				ids.ids.push(moveList[moveList.length-1].id)
-				chess.undo()
+				c.undo()
 
 				ids.max++
 			}
@@ -87,7 +94,7 @@
 				moveList.filter(obj => {return obj.id == ids.ids[ids.ids.length-1]})[0].moves.push(m.replaceAll(")", ""))
 			}
 			for (let i=0; i<m.split(")").length-1; i++) {
-				chess.load(hist.pop() || "")
+				c.load(hist.pop() || "")
 				ids.ids.pop()
 			}
 		}
@@ -96,31 +103,60 @@
 
 	const goThroughEach = (action: (m: string) => boolean) => {
 		for (let depth in moves) {
-			chess.load(fen)
-			for (let m in moves[depth]) {
+			let m = moves[depth]
+			chess.load(m.fen)
+			for (let x in m.moves) {
+				chess.move(m.moves[x])
+				if (!action(m.moves[x])) {return false}
 			}
 		}
+		return true
 	}
 
 
-	onMount(() => {
-		moves = loadPGN(variation)
-		goThroughEach((m) => {
-			console.log(m);
-			return true;
-		})
+	// onMount(() => {
+	// 	moves = loadPGN(variation)
+	// 	goThroughEach((m) => {
+	// 		console.log(m);
+	// 		return true
+	// 	})
 
-		console.log(moves)
+	// 	console.log(moves)
 
-	})
+	// })
 
 
     const createNewPuzzle = () => {
-        if (chess.validateFen(newFEN)) {
-			chess.load(newFEN)
+		const create = async () => {
+			const response = await fetchApi("puzzlesets/puzzles/", {
+				method: "POST",
+				body: JSON.stringify({
+					"in_set": currentSet?.id,
+					"fen": newFEN,
+					"correct_variations": newPGN,
+            	})
+			});
+			if (response.ok) {
+				createModalOpen=false
+				messages = []
+				newFEN = ""
+				newPGN = ""
+				fetchUserData()
+			} else {
+				alert("Error sending data to server.") 
+			}
 		}
-    }
 
+        if (chess.validateFen(newFEN).valid) {
+			fen = newFEN
+			if (chess.loadPgn(newPGN)) {
+				moves = loadPGN(newPGN)
+				create()
+			} else messages = ["Error loading moves, make sure your correct variations are in the right format."]
+
+		} else messages = ["Invalid Starting Position"]
+
+    }
 
 </script>
 
@@ -217,7 +253,7 @@
     <label for="create-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
     <h3 class="font-bold text-lg mb-2 -mt-2">Create New Puzzle</h3>
 
-    <form class="my-5" on:submit|preventDefault={() => {}}>
+    <form class="my-5" on:submit|preventDefault={createNewPuzzle}>
         {#if messages.length}
             <div class="alert alert-warning shadow-lg">
                 <div>
@@ -229,20 +265,19 @@
 
         <div class="my-3">
             <p>Starting Position FEN</p>
-            <input bind:value={newFEN} type="text" required placeholder="Starting Position in FEN notation" class="input input-bordered input-primary w-full max-w-xs" />
+            <input bind:value={newFEN} type="text" maxlength="100" required placeholder="Starting Position in FEN notation" class="input input-bordered input-primary w-full max-w-xs" />
         </div>
 
         <div class="my-3">
             <p>Correct Variation(s)</p>
-            <textarea bind:value={newCV} type="textarea" required placeholder="Correct Variations" class="input input-bordered input-primary h-24 w-full max-w-xs" />
+            <textarea bind:value={newPGN} maxlength="1000" type="textarea" required placeholder="Correct Variations in PGN notation" class="input input-bordered input-primary h-24 w-full max-w-xs" />
         </div>
 
         <div class="modal-action">
             <button class="btn" type="submit">
               create
             </button>
-          </div>
-
+        </div>
     </form>
   </div>
 </div>

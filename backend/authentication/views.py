@@ -35,12 +35,9 @@ class UserViewSet(viewsets.ModelViewSet):
         raise Http404()
 
 class SignupView(views.APIView):
-    """View to create a new user."""
-
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        """Handle the signup request."""
         serializer = serializers.UserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -50,12 +47,10 @@ class SignupView(views.APIView):
         return response
 
 class LoginView(views.APIView):
-    """View to authenticate user and log them in."""
 
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        """Handle the login request."""
         login_serializer = serializers.LoginSerializer(data=request.data)
         login_serializer.is_valid(raise_exception=True)
 

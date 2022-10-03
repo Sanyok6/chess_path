@@ -4,7 +4,7 @@ from .models import PuzzleModel, SetModel
 class PuzzleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PuzzleModel
-        fields = ("id", "fen", "correct_variations")
+        fields = ("id", "in_set", "fen", "correct_variations")
 
 class SetCreateSerializer(serializers.ModelSerializer):
     class Meta: 

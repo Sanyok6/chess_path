@@ -95,7 +95,7 @@
             taskModalOpen = false
             fetchUserData()
         } else {
-            console.log("error deleting task")
+            alert("Error deleting task")
         }
     }
 
