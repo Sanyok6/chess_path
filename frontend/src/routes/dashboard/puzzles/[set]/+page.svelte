@@ -3,7 +3,7 @@
     import { fetchApi, fetchUserData } from '$lib/api';
 	import { page } from '$app/stores';
     import { userStore, type PuzzleSet, type User } from '$lib/store';
-	import { Chessground, cgStylesHelper } from 'svelte-use-chessground';
+	import { Chessground, cgStylesHelper, type Api } from 'svelte-use-chessground';
 	import 'svelte-use-chessground/cgstyles/chessground.css';
 
 	let userData: User | null = null;
@@ -24,53 +24,47 @@
 	let newFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 	let newPGN = "1. e4 e5 (1... c5 2. Nf3 (2. Nc3 d6) 2... d6 3. d4 (3. Bb5+ Bd7)) 2. Nf3 Nc6"
 
+	let fen = ""
+	let moves: any[] = []
+
 	let board_size = 50
 	let board_style = "blue"
 
 	let config = {
 		movable:{
 			free:false,
-			dests: new Map().set("d2", ["d4"]).set("b2", ["b3"]),
-			events: {after: []}
+			dests: new Map(),
+			events: {after: (f, t, m) => {}}
 		},
-		premovable:{
-			enabled:false,
-		},
-		fen:"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		fen:fen,
         lastMove: [],
         orientation: "white",
 	};
 
-    // let config = {
-	// 	movable: {
-	// 		free: false,
-	// 		dests: ["d4"],
-	// 		// events: {after: [() => {alert("good job")}]}
-	// 	}
-	// }
-    let cgApi;
+    let cgApi: Api;
     function initializer(api: any) {
 		cgApi = api;
+
+		cgApi.set({fen: fen} )
+		cgApi.state.movable.dests = validMovesAsDests();
 	}
 
+	let feedback = {state: "starting", response: "", animate: false}
 
     import { Chess } from 'chess.ts'
 
 
     const chess = new Chess()
 
-	let fen = ""
-	let moves: any[] = []
 
-	const variation = "1. b3 e5 (1... d5 2. Nf3 Nf6 (2... Bg4 3. e3) 3. Bb2) 2. Bb2"
-	// const variation = "1. e4 e5 (1... c5 2. Nf3 (2. Nc3 d6) 2... d6 3. d4 (3. Bb5+ Bd7)) 2. Nf3 Nc6"
+	// const variation = "1. b3 e5 (1... d5 2. Nf3 Nf6 (2... Bg4 3. e3) 3. Bb2) 2. Bb2"
+	const variation = "1. e4 e5 (1... c5 2. Nf3 (2. Nc3 d6) 2... d6 3. d4 (3. Bb5+ Bd7)) 2. Nf3 Nc6"
 	const position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 	fen = position
 
 	const loadPGN = (pgn: string) => {
-		let c = new Chess()
-		let moveList: any[] = [{id:0, fen:fen, moves:[]}]
+		let moveList: Array<{id: number; fen: string; moves: string[]}> = [{id:0, fen:fen, moves:[]}]
 		let hist = [fen]
 		let splitMoves = pgn.split(" ")
 		let ids = {ids: [0], max: 1}
@@ -78,53 +72,58 @@
 		for (let i in splitMoves) {
 			let m = splitMoves[i]
 			if (m.includes("(")) {
+				hist.push(chess.fen())
+				chess.undo()
 				moveList.push({
 					id: ids.max,
-					fen:c.fen(),
+					fen:chess.fen(),
 					moves:[]
 				})
-				hist.push(c.fen())
 				ids.ids.push(moveList[moveList.length-1].id)
-				c.undo()
 
 				ids.max++
 			}
 			else if (m.includes(".")) {}
 			else {					
 				moveList.filter(obj => {return obj.id == ids.ids[ids.ids.length-1]})[0].moves.push(m.replaceAll(")", ""))
+				chess.move(m.replaceAll(")", ""))
 			}
 			for (let i=0; i<m.split(")").length-1; i++) {
-				c.load(hist.pop() || "")
+				chess.load(hist.pop() || "")
 				ids.ids.pop()
 			}
 		}
 		return moveList
 	} 
 
-	const goThroughEach = (action: (m: string) => boolean) => {
-		for (let depth in moves) {
-			let m = moves[depth]
-			chess.load(m.fen)
-			for (let x in m.moves) {
-				chess.move(m.moves[x])
-				if (!action(m.moves[x])) {return false}
+	const goThroughEach = (action: (m: string, c: Chess, ab: [number, number]) => boolean) => {
+		let c = new Chess()
+		for (let d = 0; d < moves.length; d++) {
+			let m = moves[d]
+			c.load(m.fen)
+			for (let x = 0; x < m.moves.length; x++) {
+				c.move(m.moves[x])
+				if (!action(m.moves[x], c, [d, x])) {return false}
 			}
 		}
 		return true
 	}
 
+	function validMovesAsDests() {
+		const dests = new Map();
+		const moves = chess.moves({ verbose: true });
 
-	// onMount(() => {
-	// 	moves = loadPGN(variation)
-	// 	goThroughEach((m) => {
-	// 		console.log(m);
-	// 		return true
-	// 	})
+		for (const validMove of moves) {
+			const entry = dests.get(validMove.from);
+			if (entry) {
+				entry.push(validMove.to);
+			} else {
+				dests.set(validMove.from, [validMove.to]);
+			}
+		}
 
-	// 	console.log(moves)
-
-	// })
-
+		return dests;
+	}
 
     const createNewPuzzle = () => {
 		const create = async () => {
@@ -149,7 +148,8 @@
 
         if (chess.validateFen(newFEN).valid) {
 			fen = newFEN
-			if (chess.loadPgn(newPGN)) {
+			chess.load(fen)
+			if (true) {
 				moves = loadPGN(newPGN)
 				create()
 			} else messages = ["Error loading moves, make sure your correct variations are in the right format."]
@@ -157,12 +157,69 @@
 		} else messages = ["Invalid Starting Position"]
 
     }
+	
+
+	const startPuzzle = (index: number) => {
+		const puzzle = currentSet?.puzzles[index]
+
+		fen = puzzle?.fen || ""
+
+		moves = loadPGN(puzzle?.correct_variations || "")
+
+		chess.load(fen)
+
+		config.movable.dests = validMovesAsDests()
+		config.movable.events.after = afterMove
+
+		feedback.state = "start"
+	}
+
+	const afterMove = (from: string, to: string, metadata: string) => {
+		const movePlayed = chess.move(from+to, {sloppy:true})
+		const currentPosition = chess.fen().split(" ")[0]
+
+		let correctMoves: string[] = [] // {move:"", response:""}
+		let responses: string[] = []
+		goThroughEach((m, c, [a, b]) => {
+			if (currentPosition == c.fen().split(" ")[0]) {
+				correctMoves.push(m)
+				responses.push(moves[a].moves[b+1] || "")				
+			}
+			return true
+		})
+
+		let moveIndex = correctMoves.indexOf(movePlayed?.san || "")
+		if (moveIndex > -1) {
+			const response = chess.move(responses[moveIndex])
+			if (response) {
+				feedback.state = "correct"
+				feedback.response = response?.san || ""
+				setTimeout(() => {
+					cgApi.move(response?.from, response?.to);
+					cgApi.state.movable.dests = validMovesAsDests();
+					cgApi.playPremove();
+				}, 300);
+			} else {
+				feedback.state = "done"
+			}
+		} else {
+			feedback.state = "wrong"
+			setTimeout(() => {
+				let undone = chess.undo()
+				cgApi.move(undone?.to, undone?.from)
+				cgApi.state.lastMove = []
+				cgApi.state.movable.dests = validMovesAsDests();
+			}, 300)
+		}
+		feedback.animate = true
+		setTimeout(() => feedback.animate = false, 500)
+
+	}
 
 </script>
 
 
 {#if userData && currentSet}
-
 <div class="w-full p-8 flex flex-wrap justify-center">
 	<div
 		class="mx-8"
@@ -185,7 +242,7 @@
 		</div>
 		<div class="h-full overflow-y-scroll">
 			{#each currentSet.puzzles as s, i}
-				<div class="border-2 rounded-lg m-3 p-2 flex justify-between border-gray-400 dark:border-gray-300">
+				<div on:click={() => {startPuzzle(i)}} class="border-2 rounded-lg m-3 p-2 flex justify-between border-gray-400 dark:border-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800">
 					<div class="flex flex-nowrap">
 						<div class="mt-0.5 text-green-400">
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
@@ -233,15 +290,40 @@
 				</button>
 			</div>
 		</div>
-		<div class="py-12 bg-cyan-500 p-3 text-xl flex flex-col items-center justify-center">
-			<div class="flex flex-nowrap items-center justify-center">
-				<div class="mr-3">
-					<svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
-						<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-						<path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-					</svg>
-				</div>
-				<p>The opponent responds with <span class="font-extrabold">d5</span>. What is the next move?</p>
+		<div class="{feedback.state == 'wrong' ? 'bg-red-400' : feedback.state == 'done' ? 'bg-green-500' : 'bg-cyan-500'} py-12 p-3 text-xl flex flex-col items-center justify-center">
+			<div class="flex flex-nowrap items-center justify-center {feedback.animate ? 'bounce' : ''}">
+				{#if feedback.state == "correct"}
+					<div class="mr-3">
+						<svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+							<path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+						</svg>
+					</div>
+					<p>The opponent responds with <span class="font-extrabold">d5</span>. What is the next move?</p>
+				{:else if feedback.state == "wrong"}
+					<div class="mr-3">
+						<svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+							<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+						</svg>
+					</div>
+					<p>Inncorect move, try again.</p>
+				{:else if feedback.state == "done"}
+					<div class="mr-3">
+						<svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+							<path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+						</svg>
+					</div>
+					<p>You did it! Puzzle complete.</p>
+				{:else}
+					<div class="mr-3">
+						<svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+							<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+							<path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+						</svg>
+					</div>
+					<p>{chess.turn() == "w" ? "White" : "Black"} to move and slove the puzzle.</p>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -293,3 +375,21 @@
 
 Chess Path
 {/if}
+
+
+<style>
+	.bounce {
+		animation: bounce 0.5s;
+	}
+	@keyframes bounce {
+    0% {
+        transform: scale(1,1);
+    }
+    50% {
+        transform: scale(1.05,1.05);
+    }
+    100% {
+        transform: scale(1,1);
+    }
+}
+</style>
