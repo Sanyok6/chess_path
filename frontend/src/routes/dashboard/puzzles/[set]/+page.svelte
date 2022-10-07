@@ -152,8 +152,9 @@
 
         if (chess.validateFen(newFEN).valid) {
 			fen = newFEN
-			chess.load(fen)
-			if (true) {
+			let formattedPGN = '[SetUp "1"]\n[FEN "'+newFEN+'"]\n\n'+newPGN.split("\n").reverse()[0]
+			if (chess.loadPgn(formattedPGN)) {
+				newPGN = formattedPGN.split("\n").reverse()[0].replace(" *", "")
 				moves = loadPGN(newPGN)
 				create()
 			} else messages = ["Error loading moves, make sure your correct variations are in the right format."]
