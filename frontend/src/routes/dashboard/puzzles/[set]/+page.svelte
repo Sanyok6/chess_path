@@ -27,7 +27,7 @@
 	let fen = ""
 	let moves: any[] = []
 
-	let board_size = 50
+	let board_size = 800
 	let board_style = "blue"
 
 	let config = {
@@ -65,15 +65,17 @@
 
 	const loadPGN = (pgn: string) => {
 		let moveList: Array<{id: number; fen: string; moves: string[]}> = [{id:0, fen:fen, moves:[]}]
-		let hist = [fen]
 		let splitMoves = pgn.split(" ")
+		let hist = [{fen: fen, move: splitMoves[0]}]
 		let ids = {ids: [0], max: 1}
+
+		chess.load(fen)
 
 		for (let i in splitMoves) {
 			let m = splitMoves[i]
 			if (m.includes("(")) {
-				hist.push(chess.fen())
-				chess.undo()
+				let undone = chess.undo()
+				hist.push({fen: chess.fen(), move: undone?.san})
 				moveList.push({
 					id: ids.max,
 					fen:chess.fen(),
@@ -89,7 +91,9 @@
 				chess.move(m.replaceAll(")", ""))
 			}
 			for (let i=0; i<m.split(")").length-1; i++) {
-				chess.load(hist.pop() || "")
+				let lastest = hist.pop()
+				chess.load(lastest?.fen || "")
+				chess.move(lastest?.move || "")
 				ids.ids.pop()
 			}
 		}
@@ -183,7 +187,7 @@
 		goThroughEach((m, c, [a, b]) => {
 			if (currentPosition == c.fen().split(" ")[0]) {
 				correctMoves.push(m)
-				responses.push(moves[a].moves[b+1] || "")				
+				responses.push(moves[a].moves[b+1] || "")	
 			}
 			return true
 		})
@@ -209,6 +213,8 @@
 				cgApi.move(undone?.to, undone?.from)
 				cgApi.state.lastMove = []
 				cgApi.state.movable.dests = validMovesAsDests();
+				fen = chess.fen()
+				initializer(cgApi)
 			}, 300)
 		}
 		feedback.animate = true
@@ -223,12 +229,12 @@
 <div class="w-full p-8 flex flex-wrap justify-center">
 	<div
 		class="mx-8"
-		style="width:{board_size}%;aspect-ratio:1"
+		style="width:{board_size}px; height:{board_size}px; aspect-ratio:1"
 		use:Chessground={{config, initializer}}
 		use:cgStylesHelper="{{ piecesFolderUrl: '/pieces/', boardUrl: '/board/board_'+board_style+'.svg' }}"
 	/>
 
-	<div class="w-full lg:w-[20vw] bg-gray-200 dark:bg-gray-900 flex flex-col">
+	<div class="max-h-[{board_size}px] w-full lg:w-[20vw] bg-gray-200 dark:bg-gray-900 flex flex-col">
 		<div class="p-1 border-b-gray-500 dark:border-b-gray-300 border-b-[1px] mx-2 flex flex-col content-center justify-center">
 			<div class="flex justify-between">
 				<p class="text-2xl mt-2">{currentSet.name}</p>
@@ -240,7 +246,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="h-full overflow-y-scroll">
+		<div class="col-span-2 overflow-y-scroll">
 			{#each currentSet.puzzles as s, i}
 				<div on:click={() => {startPuzzle(i)}} class="border-2 rounded-lg m-3 p-2 flex justify-between border-gray-400 dark:border-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800">
 					<div class="flex flex-nowrap">
