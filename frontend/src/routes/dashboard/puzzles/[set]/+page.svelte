@@ -21,6 +21,7 @@
 
 	let board_size = 800
 	let board_style = "blue"
+	let orientation: "white" | "black" = "white"
 
 	let config = {
 		movable:{
@@ -30,18 +31,19 @@
 		},
 		fen:fen,
         lastMove: [],
-        orientation: "white",
+        orientation: orientation
 	};
 
     let cgApi: Api;
     function initializer(api: any) {
 		cgApi = api;
 
-		cgApi.set({fen: fen} )
+		cgApi.set({fen: fen, orientation: orientation})
 		cgApi.state.movable.dests = validMovesAsDests();
+		// cgApi.setShapes([{orig:"a2", brush:"green"}])
 	}
 
-	let feedback = {state: "starting", response: "", animate: false, solution: "", current_puzzle: 0}
+	let feedback = {state: "starting", response: "", animate: false, current_puzzle: 0}
 
     import { Chess } from 'chess.ts'
     import { to_number } from 'svelte/internal';
@@ -179,6 +181,7 @@
 
 		chess.load(fen)
 
+		orientation = chess.turn() == "w" ? "white" : "black"
 		config.movable.dests = validMovesAsDests()
 		config.movable.events.after = afterMove
 
@@ -186,6 +189,7 @@
 		feedback.current_puzzle = index
 
 		puzzleIndex.set(index)
+
 	}
 
 	const afterMove = (from: string, to: string, metadata: string) => {
@@ -214,11 +218,10 @@
 					cgApi.move(response?.from, response?.to);
 					cgApi.state.movable.dests = validMovesAsDests();
 					cgApi.playPremove();
-					feedback.solution = after[moveIndex]
 					if (!after[moveIndex]) {
 						feedback.state = "done"
-						feedback.solution = ""
 					}
+					fen = chess.fen()
 				}, 300);
 			} else {
 				feedback.state = "done"
@@ -239,6 +242,21 @@
 
 	}
 
+	const getSolution = (hint: boolean) => {
+		let move: string[] = ["", ""]
+		goThroughEach((m, c, [a, b]) => {
+			let u = c.undo()
+			if (fen.split(" ")[0] == c.fen().split(" ")[0]) {
+				move = [u?.from || '', u?.to || '']
+				return false
+			}
+			c.move(u?.san || "")
+			return true
+		})
+		if (hint) {cgApi.setShapes([{orig: move[0], brush: "green"}])}
+		else {cgApi.setShapes([{orig: move[0], dest: move[1], brush: "green"}])}
+	}
+
 	userStore.subscribe(d => {
 		userData = d;
 		if (userData) {
@@ -248,7 +266,6 @@
 			startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
 		}
 	})
-
 </script>
 
 
@@ -299,18 +316,18 @@
 		</div>
 		<div class="h-32 border-y-gray-500 dark:border-y-gray-300 border-y-[1px] m-2 flex flex-col items-center justify-center">
 			<div class="w-full px-2 flex justify-between flex-wrap">
-				<button class="btn btn-ghost h-14">
+				<button on:click={() => getSolution(true)} class="btn btn-ghost h-14">
 					<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" fill="currentColor" class="bi bi-lightbulb" viewBox="0 0 16 16">
 						<path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"/>
 					</svg>
 				</button>
-				<button class="btn btn-ghost h-14">
+				<button on:click={() => getSolution(false)} class="btn btn-ghost h-14">
 					<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
 						<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
 						<path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
 					</svg>
 				</button>
-				<button class="btn btn-ghost h-14">
+				<button on:click={() => {orientation = orientation == "white" ? "black" : "white"; config.orientation = orientation}} class="btn btn-ghost h-14">
 					<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
 						<path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
 						<path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
@@ -333,7 +350,7 @@
 							<path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
 						</svg>
 					</div>
-					<p>The opponent responds with <span class="font-extrabold">d5</span>. What is the next move?</p>
+					<p>The opponent responds with <span class="font-extrabold">{feedback.response}</span>. What is the next move?</p>
 				{:else if feedback.state == "wrong"}
 					<div class="mr-3">
 						<svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
