@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
 
 export interface Task {
 	id: number;
@@ -40,3 +41,10 @@ export interface Puzzles {
 export const userStore = writable<User | null>(null);
 
 export const taskClaimed = writable<Boolean>(true);
+
+export const puzzleIndex = writable<number>(0);
+
+if (browser) {
+	puzzleIndex.set(localStorage.puzzleIndex || 0)
+	puzzleIndex.subscribe((value) => localStorage.puzzleIndex = value)
+}
