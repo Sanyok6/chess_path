@@ -49,7 +49,7 @@
             <p class="font-bold text-xl">{s.name}</p>
             <p class="text-sm">Last Opened: {s.last_opened}</p>
             <p class="text-sm">Creator: {s.creator}</p>
-            <p class="text-sm">Puzzles: {s.puzzles.length}</p>
+            <!-- <p class="text-sm">Puzzles: {s.puzzles.length}</p> -->
         </div>
     {/each}
 </div>

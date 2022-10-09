@@ -22,13 +22,11 @@ export interface User {
 	data: UserData;
 }
 
-
 export interface PuzzleSet {
 	id: string;
 	creator: string;
 	name: string;
 	last_opened: Date;
-	puzzles: Array<Puzzles>;
 }
 
 export interface Puzzles {

@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework import permissions
-from .serializers import SetCreateSerializer, SetSerializer, PuzzleSerializer 
+from .serializers import SetCreateSerializer, SetSerializerWithPuzzles, PuzzleSerializer 
 from .models import PuzzleModel, SetModel
 
 
@@ -13,7 +13,7 @@ class SetsViewSet(viewsets.ModelViewSet):
         if self.action.lower() in ("create", "update", "partial_update", "delete"):
             return SetCreateSerializer
         else:
-            return SetSerializer
+            return SetSerializerWithPuzzles
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

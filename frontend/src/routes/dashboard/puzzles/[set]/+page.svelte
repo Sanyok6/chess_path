@@ -61,6 +61,7 @@
 
     import { Chess } from 'chess.ts'
     import { to_number } from 'svelte/internal';
+    import { goto } from '$app/navigation';
 
 
     const chess = new Chess()
@@ -271,12 +272,18 @@
 		else {cgApi.setShapes([{orig: move[0], dest: move[1], brush: "green"}])}
 	}
 
-	userStore.subscribe(d => {
+	userStore.subscribe(async d => {
 		userData = d;
 		if (userData) {
-			for (let p in userData.data.sets) {
-				if (userData.data.sets[p].id == $page.params.set) {currentSet = userData.data.sets[p]}
+			const response = await fetchApi("puzzlesets/sets/"+$page.params.set)
+			if (response.ok) {
+				response.json().then(d => currentSet = d)
 			}
+			else {
+				alert("Invalid id. This set does not exist, or may have been deleted.")
+				goto("/dashboard/puzzles")
+			}
+
 			startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
 		}
 	})

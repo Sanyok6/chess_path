@@ -12,9 +12,14 @@ class SetCreateSerializer(serializers.ModelSerializer):
         fields = ("name",)
 
 class SetSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = SetModel
+        fields = ("id", "creator", "name", "last_opened")
+
+class SetSerializerWithPuzzles(serializers.ModelSerializer):
     puzzles = serializers.SerializerMethodField()
 
-    class Meta: 
+    class Meta:
         model = SetModel
         fields = ("id", "creator", "name", "last_opened", "puzzles")
 
