@@ -2,12 +2,12 @@
     import { onMount } from 'svelte';
     import { fetchApi, fetchUserData } from '$lib/api';
 	import { page } from '$app/stores';
-    import { userStore, type PuzzleSet, type User } from '$lib/store';
+    import { userStore, type PuzzleSetWithPuzzles, type User } from '$lib/store';
 	import { Chessground, cgStylesHelper, type Api } from 'svelte-use-chessground';
 	import 'svelte-use-chessground/cgstyles/chessground.css';
 
 	let userData: User | null = null;
-	let currentSet: PuzzleSet | null = null; 
+	let currentSet: PuzzleSetWithPuzzles | null = null; 
 
 	let createModalOpen = false
 	let settingsModalOpen = false

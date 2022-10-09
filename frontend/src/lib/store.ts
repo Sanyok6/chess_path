@@ -27,6 +27,15 @@ export interface PuzzleSet {
 	creator: string;
 	name: string;
 	last_opened: Date;
+	amount: number;
+}
+
+export interface PuzzleSetWithPuzzles {
+	id: string;
+	creator: string;
+	name: string;
+	last_opened: Date;
+	puzzles: Puzzles[];
 }
 
 export interface Puzzles {
