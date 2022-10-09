@@ -2,15 +2,15 @@
     import { onMount } from 'svelte';
     import { fetchApi, fetchUserData } from '$lib/api';
 	import { page } from '$app/stores';
-    import { userStore, type PuzzleSet, type User, puzzleIndex } from '$lib/store';
+    import { userStore, type PuzzleSet, type User } from '$lib/store';
 	import { Chessground, cgStylesHelper, type Api } from 'svelte-use-chessground';
 	import 'svelte-use-chessground/cgstyles/chessground.css';
 
 	let userData: User | null = null;
 	let currentSet: PuzzleSet | null = null; 
 
-
 	let createModalOpen = false
+	let settingsModalOpen = false
 
 	let messages: string[] = []
 	let newFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -20,8 +20,22 @@
 	let moves: any[] = []
 
 	let board_size = 800
-	let board_style = "blue"
+	let board_color = "blue"
+	let piece_set = "merida"
 	let orientation: "white" | "black" = "white"
+
+	onMount(() => {
+		board_size = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_size || board_size
+		board_color = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_color || board_color
+		piece_set = JSON.parse(localStorage.getItem("boardOptions") || "{}").piece_set || piece_set
+	})
+
+	const saveBoardSettings = () => {
+		localStorage.setItem(
+			"boardOptions", 
+			JSON.stringify({board_size: board_size, board_color: board_color, piece_set: piece_set})
+		)
+	}
 
 	let config = {
 		movable:{
@@ -188,7 +202,7 @@
 		feedback.state = "start"
 		feedback.current_puzzle = index
 
-		puzzleIndex.set(index)
+		localStorage.setItem("puzzleIndex", index)
 
 	}
 
@@ -270,12 +284,12 @@
 
 
 {#if userData && currentSet}
-<div class="w-full p-8 flex flex-wrap justify-center">
+<div class="w-full lg:p-8 lg:-mt-10 mt-20 flex flex-wrap justify-center">
 	<div
-		class="mx-8"
+		class="mx-8 lg:mt-0 mt-24"
 		style="width:{board_size}px; height:{board_size}px; aspect-ratio:1"
 		use:Chessground={{config, initializer}}
-		use:cgStylesHelper="{{ piecesFolderUrl: '/pieces/', boardUrl: '/board/board_'+board_style+'.svg' }}"
+		use:cgStylesHelper="{{ piecesFolderUrl: '/chess/pieces/'+piece_set, boardUrl: '/chess/board/board_'+board_color+'.svg' }}"
 	/>
 
 	<div class="max-h-[{board_size}px] w-full lg:w-[20vw] bg-gray-200 dark:bg-gray-900 flex flex-col">
@@ -333,7 +347,7 @@
 						<path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
 					</svg>
 				</button>
-				<button class="btn btn-ghost h-14">
+				<button on:click={() => settingsModalOpen = true} class="btn btn-ghost h-14">
 					<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
 						<path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
 						<path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
@@ -390,8 +404,8 @@
         {#if messages.length}
             <div class="alert alert-warning shadow-lg">
                 <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                <span>{messages}</span>
+					<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+					<span>{messages}</span>
                 </div>
             </div>
         {/if}
@@ -414,6 +428,43 @@
     </form>
   </div>
 </div>
+
+<input type="checkbox" id="settings-modal" class="modal-toggle" bind:checked={settingsModalOpen} />
+<div class="modal">
+  <div class="modal-box">
+    <label for="settings-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <h3 class="font-bold text-lg mb-2 -mt-2">Create New Puzzle</h3>
+        <div class="my-3">
+            <p>Peice Set</p>
+			<select bind:value={piece_set} on:change={saveBoardSettings} class="select select-bordered w-full max-w-xs">
+				<option disabled selected>Piece Set</option>
+				<option>merida</option>
+				<option>gioco</option>
+			</select>
+		</div>
+
+        <div class="my-3">
+            <p>Board Theme</p>
+			<select bind:value={board_color} on:change={saveBoardSettings} class="select select-bordered w-full max-w-xs">
+				<option disabled selected>Board Theme</option>
+				<option>brown</option>
+				<option>blue</option>
+			</select>
+        </div>
+
+		<div class="my-3">
+            <p>Board Size</p>
+			<input type="range" bind:value={board_size} on:change={saveBoardSettings} step="25" min="300" max="1000" class="range range-accent range-sm" />
+        </div>
+
+        <div class="modal-action">
+            <button class="btn btn-warning btn-outline w-full">
+              close
+            </button>
+        </div>
+  </div>
+</div>
+
 {:else}
 
 <div role="status">
