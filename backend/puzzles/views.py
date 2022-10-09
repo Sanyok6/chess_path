@@ -20,7 +20,7 @@ class SetsViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save(creator=request.user)
         headers = self.get_success_headers(serializer.data)
-        return Response(SetSerializer(instance, context=self.get_serializer_context()).data,
+        return Response(SetSerializerWithPuzzles(instance, context=self.get_serializer_context()).data,
                         status=status.HTTP_201_CREATED, headers=headers)
 
 

@@ -123,7 +123,7 @@
 		return true
 	}
 
-	function validMovesAsDests() {
+	const validMovesAsDests = () => {
 		const dests = new Map();
 		const moves = chess.moves({ verbose: true });
 
