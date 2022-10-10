@@ -10,7 +10,8 @@
 	let currentSet: PuzzleSetWithPuzzles | null = null; 
 
 	let createModalOpen = false
-	let settingsModalOpen = false
+	let setSettingsModalOpen = false
+	let boardSettingsModalOpen = false
 
 	let messages: string[] = []
 	let newFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -275,11 +276,10 @@
 	userStore.subscribe(async d => {
 		userData = d;
 		if (userData) {
-			const response = await fetchApi("puzzlesets/sets/"+$page.params.set)
+			const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/")
 			if (response.ok) {
-				response.json().then(d => currentSet = d)
-			}
-			else {
+				await response.json().then(d => currentSet = d)
+			} else {
 				alert("Invalid id. This set does not exist, or may have been deleted.")
 				goto("/dashboard/puzzles")
 			}
@@ -299,14 +299,15 @@
 		use:cgStylesHelper="{{ piecesFolderUrl: '/chess/pieces/'+piece_set, boardUrl: '/chess/board/board_'+board_color+'.svg' }}"
 	/>
 
-	<div class="max-h-[{board_size}px] w-full lg:w-[20vw] bg-gray-200 dark:bg-gray-900 flex flex-col">
+	<div class="max-h-[{board_size}px] w-full lg:w-[20vw] bg-gray-200 dark:bg-gray-900 flex flex-col rounded-lg">
 		<div class="p-1 border-b-gray-500 dark:border-b-gray-300 border-b-[1px] mx-2 flex flex-col content-center justify-center">
 			<div class="flex justify-between">
-				<p class="text-2xl mt-2">{currentSet.name}</p>
-				<button class="btn btn-ghost p-0 w-10">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
-						<path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-						<path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+				<div class="flex flex-nowrap">
+					<p class="text-2xl mt-2">{currentSet.name}</p>
+				</div>
+				<button on:click={() => setSettingsModalOpen = true} class="btn btn-ghost p-0 w-10">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
+						<path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"/>
 					</svg>
 				</button>
 			</div>
@@ -354,7 +355,7 @@
 						<path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
 					</svg>
 				</button>
-				<button on:click={() => settingsModalOpen = true} class="btn btn-ghost h-14">
+				<button on:click={() => boardSettingsModalOpen = true} class="btn btn-ghost h-14">
 					<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
 						<path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
 						<path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
@@ -436,10 +437,10 @@
   </div>
 </div>
 
-<input type="checkbox" id="settings-modal" class="modal-toggle" bind:checked={settingsModalOpen} />
+<input type="checkbox" id="board-settings-modal" class="modal-toggle" bind:checked={boardSettingsModalOpen} />
 <div class="modal">
   <div class="modal-box">
-    <label for="settings-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <label for="board-settings-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
     <h3 class="font-bold text-lg mb-2 -mt-2">Create New Puzzle</h3>
         <div class="my-3">
             <p>Peice Set</p>
@@ -465,10 +466,49 @@
         </div>
 
         <div class="modal-action">
-            <button class="btn btn-warning btn-outline w-full">
-              close
-            </button>
+            <label for="board-settings-modal" class="btn btn-success btn-outline w-full">
+              save & close
+			</label>
         </div>
+  </div>
+</div>
+
+<input type="checkbox" id="set-settings-modal" class="modal-toggle" bind:checked={setSettingsModalOpen} />
+<div class="modal">
+  <div class="modal-box">
+    <label for="set-settings-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <h3 class="font-bold text-lg mb-2 -mt-2">Set Options</h3>
+
+	<div class="my-3">
+		<p class="font-extrabold">Set Name</p>
+		<input on:blur={() => {}} class="input input-sm input-primary" value={currentSet.name} placeholder="change set name" />
+	</div>
+
+	<div class="my-3">
+		<p class="font-extrabold">Delete Set</p>
+		<p class="text-sm">Set will be permanatly deleted.</p>
+		<button class="btn btn-error btn-sm">delete set</button>
+	</div>
+
+	<div class="my-3">
+		<p class="font-extrabold">Share Set</p>
+		<p class="text-sm">Everybody with this link can practice your set.</p>
+		<div class="flex flex-nowrap">
+			<button class="btn btn-square btn-success btn-sm" on:click={() => {window.open("mailto: ?cc=, &bcc= &subject=Link to Puzzle Set on Chess Path&body="+window.location.href)}}>
+				<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+					<path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+				</svg>
+			</button>
+			<input disabled class="input input-sm input-primary" value={window.location.href} placeholder="change set name" />
+		</div>
+	</div>
+
+	<div class="modal-action">
+		<label for="board-settings-modal" class="btn btn-info btn-outline w-full">
+		  save & close
+		</label>
+	</div>
+
   </div>
 </div>
 

@@ -47,7 +47,8 @@
     {#each userData.data.sets as s}
         <div on:click={() => {goto("puzzles/"+s.id)}} class="m-5 w-56 border-solid border-2 border-gray-400 dark:border-gray-300 rounded-xl p-5 hover:scale-105 hover:bg-gray-200 dark:hover:bg-gray-700">
             <p class="font-bold text-xl">{s.name}</p>
-            <p class="text-sm">Last Opened: {s.last_opened}</p>
+            <!-- <p class="text-sm">Last Opened: {s.last_opened}</p> -->
+            <p class="text-sm">Created: {s.last_opened}</p>
             <p class="text-sm">Creator: {s.creator}</p>
             <p class="text-sm">Puzzles: {s.amount}</p>
         </div>
