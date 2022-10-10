@@ -34,7 +34,7 @@
 
 <body class="{theme}">
 
-    <div class="bg-[#f7f7f5] dark:bg-gray-800 h-[100vh] dark:text-white">
+    <div class="bg-[#f7f7f5] dark:bg-gray-800 h-[100vh] dark:text-white font-sans">
         <div class="navbar bg-base-100 border-b-2 dark:border-b-0">
             <div class="flex-1">
                 <a class="btn btn-ghost normal-case text-xl text-black dark:text-blue-300" href="/">Chess Path</a>

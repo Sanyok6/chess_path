@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from puzzles.models import SetModel
 
 
 class CustomUser(AbstractUser):
@@ -15,4 +16,4 @@ class UserData(models.Model):
     last_completion = models.DateField(null=True, blank=True)
     record = models.PositiveIntegerField(default=0)
     current_streak = models.PositiveIntegerField(default=0)
-
+    sets_practiced = models.ManyToManyField(SetModel)

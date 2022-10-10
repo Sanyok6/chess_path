@@ -1,10 +1,12 @@
+from urllib import response
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from .serializers import SetCreateSerializer, SetSerializerWithPuzzles, PuzzleSerializer 
+from authentication.models import UserData
+from .serializers import SetCreateSerializer, SetSerializer, SetSerializerWithPuzzles, PuzzleSerializer 
 from .models import PuzzleModel, SetModel
 from datetime import date
 
@@ -22,7 +24,11 @@ class SetsViewSet(viewsets.ModelViewSet):
         queryset = SetModel.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         serializer = SetSerializerWithPuzzles(user)
-        SetModel.objects.filter(pk=pk).update(last_opened=date.today())
+        current_set = SetModel.objects.get(pk=pk)
+        if request.user == current_set.creator:
+            current_set.last_opened = date.today()
+        else:
+            UserData.objects.get(pk=request.user).sets_practiced.add(current_set)
         return Response(serializer.data)
     
     def create(self, request, *args, **kwargs):

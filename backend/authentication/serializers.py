@@ -40,14 +40,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             queryset = UserData.objects.get(pk=user)
         
         tasks = TaskModel.objects.filter(creator=user).exclude(lastCompletion=date.today())
-        sets = SetModel.objects.filter(creator=user).order_by('-last_opened')
 
         return {
             "current_streak": queryset.current_streak,
             "record": queryset.record,
             "last_completion": queryset.last_completion,
             "tasks": TaskSerializer(tasks, many=True).data,
-            "sets": SetSerializer(sets, many=True).data,
+            "sets": SetSerializer(queryset.sets_practiced.order_by("-last_opened"), many=True).data,
         }
 
 class LoginSerializer(serializers.Serializer):

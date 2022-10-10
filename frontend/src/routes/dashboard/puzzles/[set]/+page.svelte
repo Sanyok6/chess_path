@@ -299,7 +299,7 @@
 		use:cgStylesHelper="{{ piecesFolderUrl: '/chess/pieces/'+piece_set, boardUrl: '/chess/board/board_'+board_color+'.svg' }}"
 	/>
 
-	<div class="max-h-[{board_size}px] w-full lg:w-[20vw] bg-gray-200 dark:bg-gray-900 flex flex-col rounded-lg">
+	<div style="height:{board_size}px;" class="w-full lg:w-[20vw] bg-gray-200 dark:bg-gray-900 flex flex-col rounded-lg">
 		<div class="p-1 border-b-gray-500 dark:border-b-gray-300 border-b-[1px] mx-2 flex flex-col content-center justify-center">
 			<div class="flex justify-between">
 				<div class="flex flex-nowrap">
@@ -364,7 +364,7 @@
 			</div>
 		</div>
 		<div class="{feedback.state == 'wrong' ? 'bg-red-400' : feedback.state == 'done' ? 'bg-green-500' : 'bg-cyan-500'} py-12 p-3 text-xl flex flex-col items-center justify-center">
-			<div class="flex flex-nowrap items-center justify-center {feedback.animate ? 'bounce' : ''}">
+			<div class="flex flex-nowrap items-center justify-center text-white {feedback.animate ? 'bounce' : ''}">
 				{#if feedback.state == "correct"}
 					<div class="mr-3">
 						<svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
