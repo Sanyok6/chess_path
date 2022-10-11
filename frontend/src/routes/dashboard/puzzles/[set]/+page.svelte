@@ -29,24 +29,25 @@
 
 	userStore.subscribe(d => {userData = d;})
 	
-	onMount(() => {
-		board_size = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_size || board_size
-		board_color = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_color || board_color
-		piece_set = JSON.parse(localStorage.getItem("boardOptions") || "{}").piece_set || piece_set
-	})
-
-	onMount(async () => {
+	const getCurrentSet = async () => {
 		await userData
 		const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/")
 		if (response.ok) {
 			await response.json().then(d => currentSet = d)
-			isCreator = userData.id == currentSet?.creator
+			isCreator = userData?.id == currentSet?.creator
 		} else {
 			alert("Invalid id. This set does not exist, or may have been deleted.")
 			goto("/dashboard/puzzles")
 		}
 		startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
 
+	}
+
+	onMount(() => {
+		board_size = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_size || board_size
+		board_color = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_color || board_color
+		piece_set = JSON.parse(localStorage.getItem("boardOptions") || "{}").piece_set || piece_set
+		getCurrentSet()
 	})
 
 	const saveBoardSettings = () => {
@@ -206,6 +207,17 @@
         }
 	}
 
+	const editSetName = async () => {
+		const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/", {
+			method:"PATCH",
+			body: JSON.stringify({name: currentSet?.name})
+		})
+		if (response.ok) {
+			getCurrentSet()
+		}
+
+	}
+
 	const deleteSet = async () => {
 		const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/", {method:"DELETE"})
 		if (response.ok) {goto("/dashboard/puzzles")}
@@ -295,7 +307,6 @@
 		if (hint) {cgApi.setShapes([{orig: move[0], brush: "green"}])}
 		else {cgApi.setShapes([{orig: move[0], dest: move[1], brush: "green"}])}
 	}
-
 
 </script>
 
@@ -502,7 +513,7 @@
 
 	<div class="my-3">
 		<p class="font-extrabold">Set Name</p>
-		<input on:blur={() => {}} class="input input-sm input-primary" value={currentSet.name} placeholder="change set name" />
+		<input bind:value={currentSet.name} on:blur={() => {editSetName()}} class="input input-sm input-primary" placeholder="change set name" />
 	</div>
 
 	<div class="my-3">
