@@ -110,7 +110,7 @@
             if (userData?.data.tasks.length == 1) taskClaimed.set(false);
             fetchUserData()
         } else {
-           alert("Error updating task completion status, check your internet connection and try again.") 
+           alert("Error updating task completion status.") 
         }
     }
 
@@ -152,7 +152,7 @@
         {:else}
             <div class="text-left">
                 <p>Task Name: <span class="font-semibold">{currentTask.task.name}</span></p>
-                <p>Duration: <span class="font-semibold">{currentTask.task.duration} mins</span></p>
+                <p>Duration: <span class="font-semibold">{currentTask.task.duration/60} mins</span></p>
             </div>
         {/if}
     </div>
