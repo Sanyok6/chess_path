@@ -174,7 +174,7 @@
 				messages = []
 				newFEN = ""
 				newPGN = ""
-				fetchUserData()
+				await getCurrentSet()
 				startPuzzle(currentSet?.puzzles.length-1)
 			} else {
 				alert("Error sending data to server.") 
