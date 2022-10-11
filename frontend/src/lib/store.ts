@@ -32,7 +32,7 @@ export interface PuzzleSet {
 
 export interface PuzzleSetWithPuzzles {
 	id: string;
-	creator: string;
+	creator: number;
 	name: string;
 	last_opened: Date;
 	puzzles: Puzzles[];

@@ -7,7 +7,9 @@
 	import 'svelte-use-chessground/cgstyles/chessground.css';
 
 	let userData: User | null = null;
-	let currentSet: PuzzleSetWithPuzzles | null = null; 
+	let currentSet: PuzzleSetWithPuzzles | null = null;
+
+	let isCreator = false
 
 	let createModalOpen = false
 	let setSettingsModalOpen = false
@@ -25,10 +27,26 @@
 	let piece_set = "merida"
 	let orientation: "white" | "black" = "white"
 
+	userStore.subscribe(d => {userData = d;})
+	
 	onMount(() => {
 		board_size = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_size || board_size
 		board_color = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_color || board_color
 		piece_set = JSON.parse(localStorage.getItem("boardOptions") || "{}").piece_set || piece_set
+	})
+
+	onMount(async () => {
+		await userData
+		const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/")
+		if (response.ok) {
+			await response.json().then(d => currentSet = d)
+			isCreator = userData.id == currentSet?.creator
+		} else {
+			alert("Invalid id. This set does not exist, or may have been deleted.")
+			goto("/dashboard/puzzles")
+		}
+		startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
+
 	})
 
 	const saveBoardSettings = () => {
@@ -188,6 +206,11 @@
         }
 	}
 
+	const deleteSet = async () => {
+		const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/", {method:"DELETE"})
+		if (response.ok) {goto("/dashboard/puzzles")}
+	}
+
 	const startPuzzle = (index: number) => {
 		const puzzle = currentSet?.puzzles[index]
 
@@ -273,20 +296,7 @@
 		else {cgApi.setShapes([{orig: move[0], dest: move[1], brush: "green"}])}
 	}
 
-	userStore.subscribe(async d => {
-		userData = d;
-		if (userData) {
-			const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/")
-			if (response.ok) {
-				await response.json().then(d => currentSet = d)
-			} else {
-				alert("Invalid id. This set does not exist, or may have been deleted.")
-				goto("/dashboard/puzzles")
-			}
 
-			startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
-		}
-	})
 </script>
 
 
@@ -305,11 +315,20 @@
 				<div class="flex flex-nowrap">
 					<p class="text-2xl mt-2">{currentSet.name}</p>
 				</div>
-				<button on:click={() => setSettingsModalOpen = true} class="btn btn-ghost p-0 w-10">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
-						<path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"/>
-					</svg>
-				</button>
+				{#if isCreator}
+					<button on:click={() => setSettingsModalOpen = true} class="btn btn-ghost p-0 w-10">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
+							<path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z"/>
+						</svg>
+					</button>
+				{:else}
+					<button on:click={() => {deleteSet()}} class="btn btn-ghost p-0 w-10 hover:text-red-500">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
+							<path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"/>
+							<path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+						  </svg>
+					</button>
+				{/if}
 			</div>
 		</div>
 		<div class="h-full overflow-y-scroll">
@@ -323,12 +342,14 @@
 						</div> -->
 						<p class="text-lg mx-1">Puzzle {i+1}</p>
 					</div>
-					<div on:click={() => {deletePuzzle(i)}} class="mt-1 hover:text-red-600 dark:hover:text-red-400">
-						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-							<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-							<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-						  </svg>
-					</div>
+					{#if isCreator}
+						<div on:click={() => {deletePuzzle(i)}} class="mt-1 hover:text-red-600 dark:hover:text-red-400">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+								<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+								<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+							</svg>
+						</div>
+					{/if}
 				</div>
 			{/each}
 
@@ -487,7 +508,7 @@
 	<div class="my-3">
 		<p class="font-extrabold">Delete Set</p>
 		<p class="text-sm">Set will be permanatly deleted.</p>
-		<button class="btn btn-error btn-sm">delete set</button>
+		<button class="btn btn-error btn-sm" on:click={deleteSet}>delete set</button>
 	</div>
 
 	<div class="my-3">

@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import { fetchApi, fetchUserData } from "$lib/api";
     import { userStore, type User } from "$lib/store";
+    import { onMount } from "svelte";
 
     let userData: User | null = null;
     userStore.subscribe(d => {userData = d})
@@ -10,6 +11,10 @@
 
     let newSetName = ""
     
+    onMount(() => {
+        fetchUserData()
+    })
+
     let create_new = async () => {
         const response = await fetchApi("puzzlesets/sets/", {
             method: "POST",
@@ -17,7 +22,6 @@
                 "name": newSetName,
             })
         });
-
 
         if (response.ok) {
             createModalOpen = false

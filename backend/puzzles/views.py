@@ -36,9 +36,17 @@ class SetsViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save(creator=request.user)
         headers = self.get_success_headers(serializer.data)
+        UserData.objects.get(pk=request.user).sets_practiced.add(instance)
         return Response(SetSerializerWithPuzzles(instance, context=self.get_serializer_context()).data,
                         status=status.HTTP_201_CREATED, headers=headers)
 
+    def destroy(self, request, pk=None):
+        queryset = SetModel.objects.get(pk=pk)
+        if queryset.creator == request.user:
+            queryset.delete()
+        else:
+            UserData.objects.get(pk=request.user).sets_practiced.remove(queryset)
+        return Response({"ok": True})
 
 class PuzzlesViewSet(viewsets.ModelViewSet):
     queryset = PuzzleModel.objects.all()
