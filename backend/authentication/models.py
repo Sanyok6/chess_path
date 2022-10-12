@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
@@ -17,3 +18,4 @@ class UserData(models.Model):
     record = models.PositiveIntegerField(default=0)
     current_streak = models.PositiveIntegerField(default=0)
     sets_practiced = models.ManyToManyField(SetModel)
+    total_completed = models.PositiveIntegerField(default=0)

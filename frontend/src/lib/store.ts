@@ -14,6 +14,7 @@ export interface UserData {
     last_completion: Date;
 	tasks: Array<Task>;
 	sets: Array<PuzzleSet>
+	total_completed: number;
 }
 
 export interface User {

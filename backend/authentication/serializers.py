@@ -45,6 +45,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "current_streak": queryset.current_streak,
             "record": queryset.record,
             "last_completion": queryset.last_completion,
+            "total_completed": queryset.total_completed,
             "tasks": TaskSerializer(tasks, many=True).data,
             "sets": SetSerializer(queryset.sets_practiced.order_by("-last_opened"), many=True).data,
         }

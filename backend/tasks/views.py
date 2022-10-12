@@ -61,9 +61,13 @@ class TasksViewSet(ModelViewSet):
 
         queryset = UserData.objects.get(pk=request.user)
 
+        queryset.total_completed += 1
+        
         if TaskModel.objects.filter(creator=request.user).exclude(lastCompletion=date.today()).__len__() == 0 and queryset.last_completion != date.today():
-            UserData.objects.filter(pk=request.user).update(last_completion=date.today(), current_streak=queryset.current_streak+1)
+            queryset.last_completion=date.today() 
+            queryset.current_streak=queryset.current_streak+1
 
+        queryset.save()
 
         return Response(TaskCreateSerializer(updated_instance,
                                              context=self.get_serializer_context()).data)

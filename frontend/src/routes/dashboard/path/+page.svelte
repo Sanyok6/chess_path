@@ -63,7 +63,7 @@
         <div class="text-center text-cyan-600 dark:text-cyan-300 p-5">
             <p class="text-3xl py-2">Tasks Completed:</p>
             <p class="text-3xl">
-                <span class="font-extrabold">50</span>
+                <span class="font-extrabold">{userData.data.total_completed}</span>
                 <span class="text-xl">tasks</span>
             </p>
         </div>
