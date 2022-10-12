@@ -70,14 +70,14 @@
         <div class="text-center text-blue-600 dark:text-blue-300 p-5">
             <p class="text-3xl py-2">Last Completed:</p>
             <p class="text-3xl">
-                <span class="font-extrabold">{userData.data.last_completion}</span>
+                <span class="font-extrabold">{userData.data.last_completion || "---"}</span>
                 <!-- <span class="text-xl">mm/dd/yy</span> -->
             </p>
         </div>
         <div class="text-center text-purple-600 dark:text-purple-300 p-5">
             <p class="text-3xl py-2">Highest Streak:</p>
             <p class="text-3xl">
-                <span class="font-extrabold">4</span>
+                <span class="font-extrabold">{userData.data.record}</span>
                  <span class="text-xl">days</span>
             </p>
         </div>

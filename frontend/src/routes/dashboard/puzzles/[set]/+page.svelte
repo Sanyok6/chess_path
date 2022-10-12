@@ -27,27 +27,30 @@
 	let piece_set = "merida"
 	let orientation: "white" | "black" = "white"
 
-	userStore.subscribe(d => {userData = d;})
-	
 	const getCurrentSet = async () => {
-		await userData
 		const response = await fetchApi("puzzlesets/sets/"+$page.params.set+"/")
 		if (response.ok) {
-			await response.json().then(d => currentSet = d)
-			isCreator = userData?.id == currentSet?.creator
+			response.json().then(d => {
+				currentSet = d
+				if (currentSet) {isCreator = userData.id == currentSet.creator}
+			})
+			
 		} else {
 			alert("Invalid id. This set does not exist, or may have been deleted.")
 			goto("/dashboard/puzzles")
 		}
 		startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
-
 	}
 
+	userStore.subscribe(d => {
+		userData = d;
+		if (userData && !currentSet) {getCurrentSet()}
+	})
+	
 	onMount(() => {
 		board_size = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_size || board_size
 		board_color = JSON.parse(localStorage.getItem("boardOptions") || "{}").board_color || board_color
 		piece_set = JSON.parse(localStorage.getItem("boardOptions") || "{}").piece_set || piece_set
-		getCurrentSet()
 	})
 
 	const saveBoardSettings = () => {
@@ -185,7 +188,7 @@
 			fen = newFEN
 			let formattedPGN = '[SetUp "1"]\n[FEN "'+newFEN+'"]\n\n'+newPGN.split("\n").reverse()[0]
 			if (chess.loadPgn(formattedPGN)) {
-				newPGN = formattedPGN.split("\n").reverse()[0].replace(" *", "")
+				newPGN = formattedPGN.split("\n").reverse()[0].replace(" *", "").replaceAll(/ *\{[^)]*\} */g, " ")
 				moves = loadPGN(newPGN)
 				create()
 			} else messages = ["Error loading correct variations, make sure the moves are in the right format."]
@@ -363,10 +366,12 @@
 					{/if}
 				</div>
 			{/each}
-
-			<div on:click={() => {createModalOpen = true}} class="text-center border-2 rounded-lg m-3 p-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white">
-				<p class="text-lg mx-1">Create New Puzzle</p>
-			</div>
+			
+			{#if isCreator}
+				<div on:click={() => {createModalOpen = true}} class="text-center border-2 rounded-lg m-3 p-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white">
+					<p class="text-lg mx-1">Create New Puzzle</p>
+				</div>
+			{/if}
 		</div>
 		<div class="h-32 border-y-gray-500 dark:border-y-gray-300 border-y-[1px] m-2 flex flex-col items-center justify-center">
 			<div class="w-full px-2 flex justify-between flex-wrap">
