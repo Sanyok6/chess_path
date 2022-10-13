@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from django.db.models import Q
 from rest_framework import pagination, status, permissions
 from rest_framework.response import Response
@@ -63,9 +63,12 @@ class TasksViewSet(ModelViewSet):
 
         queryset.total_completed += 1
         
-        if TaskModel.objects.filter(creator=request.user).exclude(lastCompletion=date.today()).__len__() == 0 and queryset.last_completion != date.today():
-            queryset.last_completion=date.today() 
-            queryset.current_streak=queryset.current_streak+1
+        if TaskModel.objects.filter(creator=request.user).exclude(lastCompletion=date.today()).__len__() == 0:
+            if queryset.last_completion == (date.today()-timedelta(days=1)):
+                queryset.current_streak=queryset.current_streak+1
+            else: 
+                queryset.current_streak=1
+            queryset.last_completion=date.today()
 
         queryset.save()
 

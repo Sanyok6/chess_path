@@ -2,10 +2,8 @@
     import { onMount } from "svelte"
 
     import { taskClaimed, userStore, type User } from "$lib/store";
-    import { fetchUserData} from "$lib/api";
 
     import { Confetti } from "svelte-confetti"
-    import { dataset_dev } from "svelte/internal";
 
     let userData: User | null = null;
 
@@ -25,6 +23,7 @@
     let progressVal = 0
 
     let confetti = false
+    let toast = false
 
     const continuePath = () => {
         const update = () => {
@@ -39,6 +38,9 @@
         }
         if (!stats.claimed) {
             update()
+        } else {
+            toast = true
+            setTimeout(() => {toast=false}, 5000)
         }
     }
 
@@ -85,7 +87,31 @@
 
     <div class="flex flex-nowrap w-[100%] overflow-x-auto p-5 my-52 pb-10 pt-32">
 
+        <button class="btn btn-success rounded-full w-24 h-24 text-4xl border-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
+                <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
+            </svg>
+        </button>
+
         {#each Array(stats.completed+7) as _, i}
+            <progress
+                class="
+                    progress
+                    progress-success
+                    w-36
+                    min-w-min
+                    h-3
+                    mt-10
+                    mx-1
+                    bg-inherit
+                    border-2
+                    {i > stats.completed ? "border-gray-500" : "border-green-400" }
+                "
+                value={(i > stats.completed) ? 0 : (i == stats.completed) ? progressVal : 100}
+                max={100}>
+            </progress>
+            
             <button 
                 class=
                 "
@@ -104,26 +130,22 @@
                     <Confetti amount=10 x={[0.3, 0.75]} y={[0.15, 0.75]} />
                 {/if}
             </button>
-            <progress
-                class="
-                    progress
-                    progress-success
-                    w-36
-                    min-w-min
-                    h-3
-                    mt-10
-                    mx-1
-                    bg-inherit
-                    border-2
-                    {i+1 > stats.completed ? "border-gray-500" : "border-green-400" }
-                "
-                value={(i+1 > stats.completed) ? 0 : (i+1 == stats.completed) ? progressVal : 100}
-                max={100}>
-            </progress>
         {/each}
 
     </div>
+
+    {#if toast}
+        <div class="toast toast-end">
+            <div class="alert alert-warning">
+                <span>You have not completed all of todays tasks, or have already claimed todays step.</span>
+            </div>
+        </div>
+    {/if}
+
 </div>
+
+
+
 {:else}
 
 <div role="status">
