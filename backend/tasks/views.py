@@ -66,6 +66,8 @@ class TasksViewSet(ModelViewSet):
         if TaskModel.objects.filter(creator=request.user).exclude(lastCompletion=date.today()).__len__() == 0:
             if queryset.last_completion == (date.today()-timedelta(days=1)):
                 queryset.current_streak=queryset.current_streak+1
+                if queryset.current_streak > queryset.record:
+                    queryset.record = queryset.current_streak
             else: 
                 queryset.current_streak=1
             queryset.last_completion=date.today()
