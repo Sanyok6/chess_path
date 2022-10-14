@@ -18,7 +18,6 @@
     })
 
     afterUpdate(() => {
-        // Update the isLoggedIn everytime anything changes
         isLoggedIn = getCookie('isLoggedIn') === 'yes';
     })
 
@@ -26,7 +25,7 @@
 
     onMount(() => {
         themeChange(false)
-        theme = localStorage.getItem("theme") || "light"
+        theme = localStorage.getItem("theme") || "dark"
     })
 
 
