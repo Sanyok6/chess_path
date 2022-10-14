@@ -1,3 +1,16 @@
+<script lang="ts">
+    import { goto } from "$app/navigation";
+    import { getCookie } from "$lib/api";
+    import { onMount } from "svelte";
+
+    onMount(() => {
+      const isLoggedIn = getCookie('isLoggedIn') === 'yes';
+      if (!isLoggedIn) {
+        goto("/auth/login")
+      }
+    })
+</script>
+
 <div class="drawer drawer-mobile h-[93.5vh]">
   <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
   <div class="drawer-content flex flex-col items-center justify-center">
