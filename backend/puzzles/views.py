@@ -27,6 +27,7 @@ class SetsViewSet(viewsets.ModelViewSet):
         current_set = SetModel.objects.get(pk=pk)
         if request.user == current_set.creator:
             current_set.last_opened = date.today()
+            current_set.save()
         else:
             UserData.objects.get(pk=request.user).sets_practiced.add(current_set)
         return Response(serializer.data)
