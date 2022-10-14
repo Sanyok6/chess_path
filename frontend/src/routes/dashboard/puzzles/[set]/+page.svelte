@@ -541,7 +541,7 @@
 	</div>
 
 	<div class="modal-action">
-		<label for="board-settings-modal" class="btn btn-info btn-outline w-full">
+		<label for="set-settings-modal" class="btn btn-info btn-outline w-full">
 		  save & close
 		</label>
 	</div>
