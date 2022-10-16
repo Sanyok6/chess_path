@@ -55,11 +55,15 @@
                     </li>
                     {#if isLoggedIn}
                         <div class="dropdown dropdown-end">
-                            <div tabindex="0" class="btn btn-ghost btn-circle avatar ml-3">
+                            <!-- <div tabindex="0" class="btn btn-ghost btn-circle avatar ml-3">
                             <div class="w-10 rounded-full">
                                 <img alt="" src="/profilePic.png" />
                             </div>
-                            </div>
+                            </div> -->
+                            <li><div class="font-bold" tabindex="0" >
+                                {userData?.username}
+                                <svg class="fill-current -ml-3" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg>
+                            </div></li>
                             <ul tabindex="0" class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
                                 <p class="my-1 mx-4 font-bold">{userData?.username}</p>
                                 <li><a href="/dashboard/" class="w-full">Dashboard</a></li>
