@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+
     let y=0
     let h=0
     let s2=0
@@ -60,7 +62,7 @@
         <div>
             <p class="text-3xl lg:text-5xl font-bold font-sans">Are you ready?</p>
             <p class="text-lg w-96 mt-1 mb-3">What are you waiting for? Create a free account on Chess Path, and start improving!</p>
-            <button class='btn w-96 bg-black text-white h-16 shadow-[0_0_10px_10px_rgba(9,179,214,0.5)] text-lg'>Sign up</button>
+            <button on:click={() => goto("/auth/signup")} class='btn w-96 bg-black text-white h-16 shadow-[0_0_10px_10px_rgba(9,179,214,0.5)] text-lg'>Sign up</button>
         </div>
     </div>
 </div>
