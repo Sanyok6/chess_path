@@ -23,7 +23,7 @@
 
         if (response.ok) {
             fetchUserData(null);
-            goto("/");
+            goto("/dashboard");
         } else {
             const errors = formatApiErrors(await response.json()); // this will be a list of strings
             messages=errors;
@@ -34,16 +34,17 @@
 </script>
 
 
-<div class="flex min-h-[75%] items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-md space-y-8">
-      <div>
-        <img class="mx-auto h-12 w-auto" src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=600" alt="Workflow">
-        <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Create an account</h2>
-      </div>
-      <form class="mt-8 space-y-6" on:submit|preventDefault={handleSignup}>
-        {#if messages.length}
-          <!-- <Alert color="yellow">{messages.toString()}</Alert> -->
-        {/if}
+<div class="h-[70vh] flex flex-col items-center justify-center">
+  <div class="flex items-center justify-center bg-slate-200 dark:bg-slate-900 pt-14 pb-16 px-10 rounded-2xl min-w-[400px]">
+      <div class="w-full max-w-md space-y-8">
+        <div>
+          <p class="font-extralight text-center text-xl mb-4">Chess Path</p>
+          <h2 class="text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Create an account</h2>
+        </div>
+        <form class="mt-8 space-y-6" on:submit|preventDefault={handleSignup}>
+          {#if messages.length}
+            <div class="alert alert-warning">{messages.toString()}</div>
+          {/if}
         <input type="hidden" name="remember" value="true">
         <div class="-space-y-px rounded-md shadow-sm">
           <div>
@@ -60,12 +61,14 @@
           </div>
         </div>
   
-        <div>
+        <div class="text-center">
           <button on:submit|preventDefault={handleSignup} type="submit" class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             Sign up
           </button>
+          <div class="mt-5"><a class="underline" href="/auth/login">Log in instead</a></div>
         </div>
       </form>
     </div>
   </div>
+</div>
   
