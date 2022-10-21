@@ -6,7 +6,9 @@ const config: UserConfig = {
 	server: {
 		proxy: {
 			'/api/': {
-				target: 'http://127.0.0.1:8000/'
+				target: 'https://chesspath.fly.dev/',
+				changeOrigin: true,
+				secure: false,  
 			}
 		}
 	},
