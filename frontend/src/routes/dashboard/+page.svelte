@@ -6,6 +6,12 @@
     <p class="text-6xl">Welcome to Chess Path!</p>
     <div class="flex justify-center items-center mt-10">
         <div class="text-left">
+            <p class="font-bold">How it works:</p>
+            <p>- Set tasks that you want to work on every day.</p>
+            <p>- After completing all of your tasks on a given day, you move up on the path.</p>
+            <p>- If you do not complete all of your tasks, you will need to start over.</p>
+            <p>- See how far you can get on your path!</p>
+            <div class="mt-8"></div>
             <p class="font-bold">About Chess Path:</p>
             <p>- Chess Path is <a class="underline" href="https://github.com/Sanyok6/chess_path/">open source</a>. This means all of the code is free and open to everyone.</p>
             <p>- If you have any questions or comments, please open an issue <a class="underline" href="https://github.com/Sanyok6/chess_path/issues/new">here</a>.</p>
