@@ -16,8 +16,8 @@
 	let boardSettingsModalOpen = false
 
 	let messages: string[] = []
-	let newFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-	let newPGN = "1. e4 e5 (1... c5 2. Nf3 (2. Nc3 d6) 2... d6 3. d4 (3. Bb5+ Bd7)) 2. Nf3 Nc6"
+	let newFEN = ""
+	let newPGN = ""
 
 	let fen = ""
 	let moves: any[] = []
@@ -457,12 +457,12 @@
 
         <div class="my-3">
             <p>Starting Position FEN</p>
-            <input bind:value={newFEN} type="text" maxlength="100" required placeholder="Starting Position in FEN notation" class="input input-bordered input-primary w-full max-w-xs" />
+            <input bind:value={newFEN} type="text" maxlength="100" class="input input-bordered input-primary w-full max-w-xs" required placeholder="Example: 4k3/3ppp2/3p4/2p5/2P4Q/r2PR3/4PPq1/4K3 w - - 0 1" />
         </div>
 
         <div class="my-3">
-            <p>Correct Variation(s)</p>
-            <textarea bind:value={newPGN} maxlength="1000" type="textarea" required placeholder="Correct Variations in PGN notation" class="input input-bordered input-primary h-24 w-full max-w-xs" />
+            <p>Correct Variations</p>
+            <textarea bind:value={newPGN} maxlength="1000" type="textarea" class="input input-bordered input-primary h-24 w-full max-w-xs" required placeholder="Example: 1. Qxe7# (1. Qh8+ Qg8 2. Qxg8#)" />
         </div>
 
         <div class="modal-action">
