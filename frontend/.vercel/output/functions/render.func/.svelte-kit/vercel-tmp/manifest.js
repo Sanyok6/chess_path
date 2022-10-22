@@ -4,7 +4,7 @@ export const manifest = {
 	assets: new Set(["chess/board/board_blue.svg","chess/board/board_brown.svg","chess/pieces/gioco/bB.svg","chess/pieces/gioco/bK.svg","chess/pieces/gioco/bN.svg","chess/pieces/gioco/bP.svg","chess/pieces/gioco/bQ.svg","chess/pieces/gioco/bR.svg","chess/pieces/gioco/wB.svg","chess/pieces/gioco/wK.svg","chess/pieces/gioco/wN.svg","chess/pieces/gioco/wP.svg","chess/pieces/gioco/wQ.svg","chess/pieces/gioco/wR.svg","chess/pieces/merida/bB.svg","chess/pieces/merida/bK.svg","chess/pieces/merida/bN.svg","chess/pieces/merida/bP.svg","chess/pieces/merida/bQ.svg","chess/pieces/merida/bR.svg","chess/pieces/merida/wB.svg","chess/pieces/merida/wK.svg","chess/pieces/merida/wN.svg","chess/pieces/merida/wP.svg","chess/pieces/merida/wQ.svg","chess/pieces/merida/wR.svg","favicon.png","homepage/goals.png","homepage/path.png","homepage/puzzles.png","profilePic.png"]),
 	mimeTypes: {".svg":"image/svg+xml",".png":"image/png"},
 	_: {
-		entry: {"file":"_app/immutable/start-87e62be0.js","imports":["_app/immutable/start-87e62be0.js","_app/immutable/chunks/index-1680125d.js","_app/immutable/chunks/singletons-b50b55eb.js"],"stylesheets":[]},
+		entry: {"file":"_app/immutable/start-7de711fb.js","imports":["_app/immutable/start-7de711fb.js","_app/immutable/chunks/index-1680125d.js","_app/immutable/chunks/singletons-a9e4a9a3.js"],"stylesheets":[]},
 		nodes: [
 			() => import('../output/server/nodes/0.js'),
 			() => import('../output/server/nodes/1.js'),
