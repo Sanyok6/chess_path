@@ -1,5 +1,6 @@
-import vercel from '@sveltejs/adapter-vercel';
+// import vercel from '@sveltejs/adapter-vercel';
 import preprocess from 'svelte-preprocess';
+import { adapter } from '@sveltejs/kit';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -8,7 +9,8 @@ const config = {
 	preprocess: preprocess(),
 
 	kit: {
-		adapter: vercel(),
+		// adapter: vercel(),
+		adapter: adapter(),
 	}
 };
 

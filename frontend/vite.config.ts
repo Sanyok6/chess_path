@@ -8,7 +8,7 @@ const config: UserConfig = {
 			'/api/': {
 				target: 'https://chesspath.fly.dev/',
 				changeOrigin: true,
-				secure: true,  
+				secure: false,  
 			}
 		}
 	},
