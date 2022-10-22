@@ -10,13 +10,10 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "next",
-		"@sveltejs/adapter-vercel": "1.0.0-next.80",
 		"autoprefixer": "^10.4.8",
 		"classnames": "^2.3.1",
 		"daisyui": "^2.24.0",
 		"postcss": "^8.4.16",
-		"svelte": "^3.44.0",
 		"svelte-check": "^2.7.1",
 		"svelte-heros": "^2.3.5",
 		"svelte-preprocess": "^4.10.7",
@@ -32,5 +29,8 @@
 		"svelte-use-chessground": "^2.0.0",
 		"theme-change": "^2.2.0",
 		"@sveltejs/kit": "next",
+		"@sveltejs/adapter-auto": "next",
+		"@sveltejs/adapter-vercel": "1.0.0-next.80",
+		"svelte": "^3.44.0"
 	}
 }
