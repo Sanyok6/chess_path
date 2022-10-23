@@ -100,7 +100,8 @@
                     progress
                     progress-success
                     w-36
-                    min-w-[45px]
+                    min-w-[60px]
+                    lg:min-w-min
                     h-3
                     mt-10
                     mx-1
