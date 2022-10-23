@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <div class="flex flex-nowrap w-[100%] overflow-x-auto p-5 my-52 pb-10 pt-32">
+    <div class="flex flex-nowrap w-[100%] overflow-x-auto p-5 pb-32 pt-12 2xl:pt-48">
 
         <button class="btn btn-success rounded-full w-24 h-24 text-4xl border-4">
             <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
@@ -100,7 +100,7 @@
                     progress
                     progress-success
                     w-36
-                    min-w-min
+                    min-w-[45px]
                     h-3
                     mt-10
                     mx-1
