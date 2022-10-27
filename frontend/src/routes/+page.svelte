@@ -42,7 +42,7 @@
         <div />
         <div class="w-96 mt-16">
             <p class="text-4xl font-bold text-gray-100">Puzzles</p>
-            <p class="text-2xl text-gray-300">Create and share puzzle sets. Unlike many chess sites, each puzzle allows for multiple variants.</p>
+            <p class="text-2xl text-gray-300">Create and share puzzle sets. Unlike many chess sites, each puzzle allows for multiple variations.</p>
         </div>
         <div class="relative mt-10">
             <div class="w-[285px] h-[160px] lg:w-[600px] lg:h-[350px] rotate-[8deg] bg-success absolute top-5 left-5"></div>
