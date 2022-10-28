@@ -8,7 +8,7 @@ module.exports = {
   ],
   daisyui: {
     themes: ["light", "dark"],
-    default: "light",
+    default: "dark",
     logs: false
   },
 }
