@@ -44,7 +44,7 @@
 
 	userStore.subscribe(d => {
 		userData = d;
-		if (userData && !currentSet) {getCurrentSet()}
+		if (userData) {getCurrentSet()}
 	})
 	
 	onMount(() => {
