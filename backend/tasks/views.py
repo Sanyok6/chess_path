@@ -39,6 +39,7 @@ class TasksViewSet(ModelViewSet):
                         status=status.HTTP_201_CREATED, headers=headers)
 
     def update(self, request, *args, **kwargs):
+        request.data["duration"]*=60
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
