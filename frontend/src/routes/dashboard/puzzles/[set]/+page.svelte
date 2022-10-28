@@ -202,9 +202,9 @@
             method: "DELETE",
         });
         if (response.ok) {
+            fetchUserData()
 			cgApi.set({fen: ""})
 			feedback.current_puzzle = 0
-            fetchUserData()
         } else {
             alert("Error deleting puzzle.")
         }
