@@ -193,6 +193,9 @@
 				create()
 			} else messages = ["Error loading correct variations, make sure the moves are in the right format."]
 
+		} else if (newFEN.includes("lichess.org/editor")) {
+			newFEN = newFEN.split("/editor/").reverse()[0].split("?")[0].replaceAll("_", " ")
+			createNewPuzzle()
 		} else messages = ["Invalid Starting Position"]
 
     }
@@ -456,7 +459,8 @@
         {/if}
 
         <div class="my-3">
-            <p>Starting Position FEN</p>
+            <p>Starting Position</p>
+			<p class="text-xs mb-1">In <a class="underline" href="https://drive.google.com/file/d/1yCiFsj5gKxId9vW7BGV2ZbxkiGEj5OPl/view?usp=sharing" target="_blank" rel="noopener noreferrer">FEN notation</a> or as <a class="underline" href="https://lichess.org/editor/8/8/8/8/8/8/8/8_w_-_-_0_1?color=white" target="_blank" rel="noopener noreferrer">Lichess Board Editor link</a>.</p>
             <input bind:value={newFEN} type="text" maxlength="100" class="input input-bordered input-primary w-full max-w-xs" required placeholder="Example: 4k3/3ppp2/3p4/2p5/2P4Q/r2PR3/4PPq1/4K3 w - - 0 1" />
         </div>
 
@@ -577,5 +581,6 @@ Chess Path
     100% {
         transform: scale(1,1);
     }
+
 }
 </style>
