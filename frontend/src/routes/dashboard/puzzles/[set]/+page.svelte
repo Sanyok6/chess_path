@@ -33,13 +33,13 @@
 			response.json().then(d => {
 				currentSet = d
 				if (currentSet) {isCreator = userData.id == currentSet.creator}
+				startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
 			})
 			
 		} else {
 			alert("Invalid id. This set does not exist, or may have been deleted.")
 			goto("/dashboard/puzzles")
 		}
-		startPuzzle(to_number(localStorage.getItem("puzzleIndex"))	|| 0)
 	}
 
 	userStore.subscribe(d => {
@@ -177,8 +177,9 @@
 				messages = []
 				newFEN = ""
 				newPGN = ""
-				await getCurrentSet()
-				startPuzzle(currentSet?.puzzles.length-1)
+
+				localStorage.setItem("puzzleIndex", currentSet?.puzzles.length)
+				getCurrentSet()
 			} else {
 				alert("Error sending data to server.") 
 			}
