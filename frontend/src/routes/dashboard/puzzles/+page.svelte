@@ -24,11 +24,45 @@
         });
 
         if (response.ok) {
+            const setId = (await response.json()).id
+            if (importing) {
+                if (!await load_study(setId)) {return}
+            }
             createModalOpen = false
             fetchUserData()
-            goto("puzzles/"+(await response.json()).id)
+            goto("puzzles/"+setId)
         }
     }
+
+    let load_study = async (setId: number) => {
+        const r = await fetch("https://lichess.org/api/study/"+studyLink.split('study/').pop().split('/')[0]+".pgn")
+        if (r.ok) {
+            let chapters = (await r.text()).split("\n\n\n")
+            chapters.pop()
+
+            console.log(chapters)
+
+            for (let c in chapters) {
+                await fetchApi("puzzlesets/puzzles", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        "in_set": setId,
+                        "fen": chapters[c].includes("[FEN") ? chapters[c].split('[FEN "').pop().split('"]')[0] : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+                        "correct_variations": chapters[c].split("\n\n")[1],
+                    })
+                });
+            }
+            return true
+        } else {
+            failedToLoadLink = true
+            return false
+        }
+    }
+
+    let importing = false
+    let studyLink = ""
+
+    let failedToLoadLink = false
 </script>
 
 {#if userData != null}
@@ -66,9 +100,24 @@
 
     <form class="my-5" on:submit|preventDefault={create_new}>
 
+        {#if failedToLoadLink}
+            <div class="alert alert-error shadow-lg">
+                <div><span>Failed to load Lichess Study link. Please make sure that the study exists, and that it is <strong>not private.</strong></span></div>
+            </div>
+        {/if}
+
         <div class="my-3">
             <p>Puzzle Set Name</p>
-            <input bind:value={newSetName} type="text" required placeholder="Puzzle Set Name" class="input input-bordered input-primary w-full max-w-xs" />
+            <input bind:value={newSetName} type="text" required placeholder="Puzzle Set Name" class="input input-primary w-full max-w-xs" />
+        </div>
+
+        <div class="mt-6 mb-3 flex" on:mousedown={() => importing=!importing}>
+            <input type="checkbox" bind:checked={importing} class="checkbox checkbox-primary mr-2" on:mousedown={() => {}} />
+            <p>Import from Lichess Study</p>
+        </div>
+
+        <div class="my-3 {importing ? '' : 'hidden'}">
+            <input bind:value={studyLink} class="input {failedToLoadLink ? 'input-error' : 'input-primary'}" placeholder="https://lichess.org/study/...">
         </div>
 
         <div class="modal-action">
